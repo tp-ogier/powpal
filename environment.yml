@@ -1,0 +1,12 @@
+name: powpal
+channels:
+  - defaults
+dependencies:
+  - geopandas
+  - numpy
+  - shapely
+  - ipykernel
+  - gpxpy
+  - seaborn
+  - contextily
+  - folium

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "powpal"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "geopandas",
+    "numpy",
+    "shapely",
+    "gpxpy",
+    "folium",
+    "pyproj",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["powpal*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

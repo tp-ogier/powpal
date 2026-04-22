@@ -8,5 +8,5 @@ dependencies:
   - ipykernel
   - gpxpy
   - seaborn
-  - contextily
   - folium
+  - pytest

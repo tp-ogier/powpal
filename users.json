@@ -1,0 +1,10 @@
+[
+  {"slug": "theo", "display_name": "Theo", "colour": "#6b4711"},
+  {"slug": "colin",   "display_name": "Colin",   "colour": "#457B9D"},
+  {"slug": "dom", "display_name": "Dom", "colour": "#2A9D8F"},
+  {"slug": "bo", "display_name": "Breezy Johnson", "colour": "#12125c"},
+  {"slug": "wanying", "display_name": "Wanying", "colour": "#fce405"},
+  {"slug": "klaudia", "display_name": "Klaudia", "colour": "#bd911a"},
+  {"slug": "theo_g", "display_name": "Theo G", "colour": "#323b25"},
+  {"slug": "gabby", "display_name": "Mogul Queen", "colour": "#b58fb1"}
+]

@@ -3,6 +3,134 @@
 <head>
     
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+<link rel='stylesheet'
+  href='https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css'>
+<script
+  src='https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js'></script>
+<style>
+  #pw-slider .noUi-base { background: #3a3a3a; }
+  #pw-slider .noUi-connect { background: #4287f5; }
+  #pw-slider .noUi-handle {
+    cursor: ew-resize; box-shadow: none;
+    background: #f0f0f0; border: 2px solid #4287f5;
+  }
+  #pw-slider .noUi-handle:before,
+  #pw-slider .noUi-handle:after { background: #999999; }
+  #pw-slider .noUi-pips-horizontal { padding: 8px 0 0; }
+  #pw-slider .noUi-value { font-size: 10px; color: #999999; white-space: nowrap; }
+  #pw-slider .noUi-marker { background: #3a3a3a; }
+  #pw-slider .noUi-marker-horizontal.noUi-marker { height: 5px; }
+  #pw-slider .noUi-marker-horizontal.noUi-marker-large { height: 8px; }
+  .pw-day-tick {
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    width: 2px; height: 10px; background: white; opacity: 1;
+    pointer-events: none; border-radius: 5px; z-index: 0;
+  }
+  /* Zoom control dark theme */
+  .leaflet-control-zoom {
+    border: 1px solid #3a3a3a !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+  }
+  .leaflet-control-zoom a {
+    background-color: #1e1e1e !important;
+    color: #f0f0f0 !important;
+    border-bottom: 1px solid #3a3a3a !important;
+    font-size: 16px !important;
+    line-height: 26px !important;
+  }
+  .leaflet-control-zoom a:last-child { border-bottom: none !important; }
+  .leaflet-control-zoom a:hover { background-color: #2a2a2a !important; }
+
+  /* ---- Font sizes — single source of truth ---- */
+  /* Desktop */
+  #pw-title { font-size: 18px; }
+  #pw-panel { font-size: 12px; }
+  #pw-tab-days, #pw-tab-pistes, #pw-tab-medals { font-size: 12px; }
+  /* Mobile tab bar */
+  #pw-mobile-tabbar {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
+    background: #1e1e1e; border-top: 1px solid #3a3a3a;
+    z-index: 2000; align-items: stretch;
+  }
+  #pw-mobile-tabbar button {
+    flex: 1; border: none; background: transparent;
+    color: #999999; font-size: 12px; cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+    padding: 6px 0; -webkit-tap-highlight-color: transparent;
+  }
+  #pw-mobile-tabbar button.pw-mtab-active { color: #4287f5; }
+  /* Mobile sheet and its contents */
+  #pw-mobile-sheet { font-size: 14px; }
+  #pw-mobile-lb > div:first-child,
+  #pw-mobile-filter > div:first-child { font-size: 18px; }
+  #pw-mlb-days, #pw-mlb-pistes, #pw-mlb-medals { font-size: 14px; }
+  #pw-mobile-filter-label { font-size: 12px; }
+
+  /* ---- Mobile bottom sheet ---- */
+  #pw-mobile-sheet {
+    display: none;
+    position: fixed; left: 0; right: 0; bottom: 70px;
+    max-height: 65vh; overflow-y: auto;
+    background: #1e1e1e; border-radius: 16px 16px 0 0;
+    border-top: 1px solid #3a3a3a;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    z-index: 1999; color: #f0f0f0; font-family: sans-serif;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  }
+  #pw-mobile-sheet.pw-open { transform: translateY(0); }
+
+  /* Mobile slider — same theme as desktop */
+  #pw-mobile-slider .noUi-base { background: #3a3a3a; }
+  #pw-mobile-slider .noUi-connect { background: #4287f5; }
+  #pw-mobile-slider .noUi-handle {
+    cursor: ew-resize; box-shadow: none;
+    background: #f0f0f0; border: 2px solid #4287f5;
+  }
+  #pw-mobile-slider .noUi-handle:before,
+  #pw-mobile-slider .noUi-handle:after { background: #999999; }
+  #pw-mobile-slider .noUi-pips-horizontal { padding: 8px 0 0; }
+  #pw-mobile-slider .noUi-value { font-size: 10px; color: #999999; white-space: nowrap; }
+  #pw-mobile-slider .noUi-marker { background: #3a3a3a; }
+
+  /* ---- Mobile breakpoint ---- */
+  @media (max-width: 640px) {
+    /* Hide desktop-only overlays */
+    #pw-panel, #pw-date-panel { display: none !important; }
+    /* Title becomes a full-width top banner */
+    #pw-title {
+      left: 0 !important; right: 0 !important; top: 0 !important;
+      transform: none !important; border-radius: 0 !important;
+      padding: 10px 16px !important;
+      text-align: center; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+      font-size: 20px;
+    }
+    /* Centre button sits just above the tab bar */
+    #pw-centre { bottom: 180px !important; right: 10px !important; }
+    /* Font size overrides for mobile — no !important needed, no inline styles to fight */
+    #pw-mobile-tabbar button { font-size: 24px; }
+    #pw-mobile-sheet { font-size: 24px; }
+    #pw-mobile-lb > div:first-child,
+    #pw-mobile-filter > div:first-child { font-size: 17px; }
+    #pw-mlb-days, #pw-mlb-pistes, #pw-mlb-medals { font-size: 15px; padding: 12px 0; }
+    #pw-mobile-lb table { font-size: 15px; }
+    #pw-mobile-lb td, #pw-mobile-lb th { padding: 6px; }
+    #pw-mobile-filter-label { font-size: 14px; padding: 4px 14px; }
+    #pw-mobile-slider .noUi-value { font-size: 12px; }
+    #pw-mobile-slider .noUi-handle { width: 28px; height: 28px; top: -12px; }
+    /* Push Leaflet zoom above the tab bar */
+    .leaflet-bottom.leaflet-right { bottom: 80px !important; }
+    /* Show mobile elements */
+    #pw-mobile-tabbar { display: flex !important; }
+    #pw-mobile-sheet { display: block !important; }
+  }
+</style>
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -17,7 +145,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_7a37505ee535ea8ee594876c695f86d5 {
+                #map_0c26fcad5079ddf5af82eb1174cb373b {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -50,56 +178,541 @@
             </script>
 
         
-    
-                    <style>
-                        .foliumtooltip {
-                            
-                        }
-                       .foliumtooltip table{
-                            margin: auto;
-                        }
-                        .foliumtooltip tr{
-                            text-align: left;
-                        }
-                        .foliumtooltip th{
-                            padding: 2px; padding-right: 8px;
-                        }
-                    </style>
-            
-    
-                    <style>
-                        .foliumpopup {
-                            margin: auto;
-                        }
-                       .foliumpopup table{
-                            margin: auto;
-                        }
-                        .foliumpopup tr{
-                            text-align: left;
-                        }
-                        .foliumpopup th{
-                            padding: 2px; padding-right: 8px;
-                        }
-                    </style>
-            
 </head>
 <body>
     
+    <script>window.POWPAL_DATA={"users": {"1": {"display_name": "Theo", "colour": "#E63946"}, "2": {"display_name": "Colin", "colour": "#457B9D"}, "3": {"display_name": "Dom", "colour": "#2A9D8F"}, "4": {"display_name": "Breezy Johnson", "colour": "green"}, "5": {"display_name": "Wanying", "colour": "yellow"}, "6": {"display_name": "Klaudia", "colour": "pink"}, "7": {"display_name": "Theo G", "colour": "orange"}, "8": {"display_name": "Mogul Queen", "colour": "#b56bae"}}, "pistes": {"1": {"name": null, "difficulty": "intermediate", "osm_id": "way/52041287"}, "2": {"name": null, "difficulty": "easy", "osm_id": "way/52041284"}, "3": {"name": null, "difficulty": "easy", "osm_id": "way/52041158"}, "4": {"name": null, "difficulty": "advanced", "osm_id": "way/52041019"}, "5": {"name": "La Combette", "difficulty": "intermediate", "osm_id": "way/52041159"}, "6": {"name": null, "difficulty": "advanced", "osm_id": "way/982177821"}, "7": {"name": null, "difficulty": "intermediate", "osm_id": "way/52041286"}, "8": {"name": null, "difficulty": "easy", "osm_id": "way/52041156"}, "9": {"name": null, "difficulty": "intermediate", "osm_id": "way/52041285"}, "10": {"name": "Route de Bavon", "difficulty": "easy", "osm_id": "way/52040937"}, "11": {"name": null, "difficulty": "easy", "osm_id": "way/52041160"}, "12": {"name": null, "difficulty": "intermediate", "osm_id": "way/52041157"}, "13": {"name": null, "difficulty": "advanced", "osm_id": "way/52041020"}, "14": {"name": null, "difficulty": "easy", "osm_id": "way/982183331"}, "15": {"name": null, "difficulty": "easy", "osm_id": "way/1000278100"}, "16": {"name": "Route de Bavon", "difficulty": "easy", "osm_id": "way/1000280542"}, "17": {"name": "Route de Bavon", "difficulty": "easy", "osm_id": "way/1000278099"}, "18": {"name": "Route de Bavon", "difficulty": "easy", "osm_id": "way/1000278098"}, "19": {"name": null, "difficulty": "intermediate", "osm_id": "way/1022896508"}, "20": {"name": null, "difficulty": "easy", "osm_id": "way/52041333"}, "21": {"name": null, "difficulty": "intermediate", "osm_id": "way/308449056"}, "22": {"name": null, "difficulty": "easy", "osm_id": "way/982183332"}, "23": {"name": null, "difficulty": "easy", "osm_id": "way/1417462133"}}, "runs": [{"user_id": 4, "piste_id": 1, "run_date": "2026-02-10", "duration_seconds": 241.0}, {"user_id": 4, "piste_id": 7, "run_date": "2026-02-10", "duration_seconds": 124.0}, {"user_id": 4, "piste_id": 12, "run_date": "2026-02-10", "duration_seconds": 111.0}, {"user_id": 4, "piste_id": 9, "run_date": "2026-02-10", "duration_seconds": 103.0}, {"user_id": 4, "piste_id": 6, "run_date": "2026-02-10", "duration_seconds": 97.0}, {"user_id": 4, "piste_id": 6, "run_date": "2026-01-29", "duration_seconds": 110.0}, {"user_id": 4, "piste_id": 3, "run_date": "2026-01-29", "duration_seconds": 60.0}, {"user_id": 4, "piste_id": 11, "run_date": "2026-01-29", "duration_seconds": 164.0}, {"user_id": 2, "piste_id": 13, "run_date": "2026-02-13", "duration_seconds": 95.0}, {"user_id": 2, "piste_id": 12, "run_date": "2026-02-13", "duration_seconds": 111.0}, {"user_id": 2, "piste_id": 8, "run_date": "2026-02-13", "duration_seconds": 97.0}, {"user_id": 3, "piste_id": 14, "run_date": "2026-02-13", "duration_seconds": 65.0}, {"user_id": 3, "piste_id": 3, "run_date": "2026-02-13", "duration_seconds": 221.001}, {"user_id": 3, "piste_id": 11, "run_date": "2026-02-13", "duration_seconds": 114.0}, {"user_id": 3, "piste_id": 11, "run_date": "2026-02-13", "duration_seconds": 106.0}, {"user_id": 8, "piste_id": 1, "run_date": "2026-03-07", "duration_seconds": 396.0}, {"user_id": 8, "piste_id": 1, "run_date": "2026-03-07", "duration_seconds": 381.0}, {"user_id": 8, "piste_id": 5, "run_date": "2026-03-07", "duration_seconds": 311.0}, {"user_id": 6, "piste_id": 3, "run_date": "2026-01-29", "duration_seconds": 34.0}, {"user_id": 6, "piste_id": 6, "run_date": "2026-01-29", "duration_seconds": 91.002}, {"user_id": 6, "piste_id": 3, "run_date": "2026-01-29", "duration_seconds": 35.001}, {"user_id": 6, "piste_id": 3, "run_date": "2026-01-29", "duration_seconds": 31.0}, {"user_id": 6, "piste_id": 5, "run_date": "2026-01-29", "duration_seconds": 60.932}, {"user_id": 6, "piste_id": 1, "run_date": "2026-01-29", "duration_seconds": 332.004}, {"user_id": 6, "piste_id": 7, "run_date": "2026-01-29", "duration_seconds": 71.003}, {"user_id": 6, "piste_id": 1, "run_date": "2026-01-29", "duration_seconds": 210.004}, {"user_id": 6, "piste_id": 11, "run_date": "2026-01-29", "duration_seconds": 119.0}, {"user_id": 6, "piste_id": 1, "run_date": "2026-01-29", "duration_seconds": 491.009}, {"user_id": 1, "piste_id": 11, "run_date": "2026-02-13", "duration_seconds": 89.0}, {"user_id": 1, "piste_id": 7, "run_date": "2026-02-13", "duration_seconds": 181.0}, {"user_id": 1, "piste_id": 3, "run_date": "2026-02-13", "duration_seconds": 215.0}, {"user_id": 1, "piste_id": 13, "run_date": "2026-02-13", "duration_seconds": 224.0}, {"user_id": 1, "piste_id": 7, "run_date": "2026-02-02", "duration_seconds": 76.002}, {"user_id": 1, "piste_id": 1, "run_date": "2026-02-27", "duration_seconds": 139.0}, {"user_id": 1, "piste_id": 7, "run_date": "2026-02-27", "duration_seconds": 155.0}, {"user_id": 1, "piste_id": 4, "run_date": "2026-02-27", "duration_seconds": 59.0}, {"user_id": 1, "piste_id": 5, "run_date": "2026-02-27", "duration_seconds": 70.0}, {"user_id": 1, "piste_id": 1, "run_date": "2026-02-27", "duration_seconds": 286.0}, {"user_id": 1, "piste_id": 13, "run_date": "2026-02-27", "duration_seconds": 142.0}, {"user_id": 1, "piste_id": 11, "run_date": "2026-02-04", "duration_seconds": 108.0}, {"user_id": 1, "piste_id": 1, "run_date": "2026-02-04", "duration_seconds": 320.002}, {"user_id": 1, "piste_id": 5, "run_date": "2026-02-04", "duration_seconds": 154.999}, {"user_id": 1, "piste_id": 3, "run_date": "2026-02-04", "duration_seconds": 146.0}, {"user_id": 1, "piste_id": 4, "run_date": "2026-02-04", "duration_seconds": 77.998}, {"user_id": 1, "piste_id": 6, "run_date": "2026-02-04", "duration_seconds": 70.0}, {"user_id": 1, "piste_id": 7, "run_date": "2026-02-06", "duration_seconds": 297.002}, {"user_id": 1, "piste_id": 6, "run_date": "2026-02-06", "duration_seconds": 193.0}, {"user_id": 1, "piste_id": 11, "run_date": "2026-01-12", "duration_seconds": 125.997}, {"user_id": 1, "piste_id": 1, "run_date": "2026-01-12", "duration_seconds": 350.0}, {"user_id": 1, "piste_id": 18, "run_date": "2026-01-12", "duration_seconds": 49.0}, {"user_id": 1, "piste_id": 17, "run_date": "2026-01-12", "duration_seconds": 79.0}, {"user_id": 1, "piste_id": 16, "run_date": "2026-01-12", "duration_seconds": 64.0}, {"user_id": 1, "piste_id": 12, "run_date": "2026-01-12", "duration_seconds": 78.0}, {"user_id": 1, "piste_id": 7, "run_date": "2026-01-13", "duration_seconds": 335.0}, {"user_id": 1, "piste_id": 4, "run_date": "2026-01-13", "duration_seconds": 79.998}, {"user_id": 1, "piste_id": 7, "run_date": "2026-01-14", "duration_seconds": 130.001}, {"user_id": 1, "piste_id": 12, "run_date": "2026-01-27", "duration_seconds": 396.001}, {"user_id": 1, "piste_id": 11, "run_date": "2026-01-29", "duration_seconds": 110.999}, {"user_id": 1, "piste_id": 3, "run_date": "2026-02-26", "duration_seconds": 30.0}, {"user_id": 1, "piste_id": 5, "run_date": "2026-02-26", "duration_seconds": 230.0}, {"user_id": 1, "piste_id": 6, "run_date": "2026-02-26", "duration_seconds": 134.0}, {"user_id": 1, "piste_id": 7, "run_date": "2026-02-26", "duration_seconds": 219.0}, {"user_id": 1, "piste_id": 8, "run_date": "2026-02-26", "duration_seconds": 74.0}, {"user_id": 1, "piste_id": 9, "run_date": "2026-02-26", "duration_seconds": 171.0}, {"user_id": 1, "piste_id": 6, "run_date": "2026-02-26", "duration_seconds": 63.0}, {"user_id": 1, "piste_id": 11, "run_date": "2026-02-26", "duration_seconds": 99.0}, {"user_id": 1, "piste_id": 3, "run_date": "2026-02-26", "duration_seconds": 32.0}, {"user_id": 1, "piste_id": 6, "run_date": "2026-02-26", "duration_seconds": 78.0}, {"user_id": 1, "piste_id": 11, "run_date": "2026-02-26", "duration_seconds": 113.0}, {"user_id": 1, "piste_id": 1, "run_date": "2026-02-26", "duration_seconds": 182.0}, {"user_id": 1, "piste_id": 1, "run_date": "2026-02-26", "duration_seconds": 136.0}, {"user_id": 1, "piste_id": 9, "run_date": "2026-02-26", "duration_seconds": 65.0}, {"user_id": 1, "piste_id": 12, "run_date": "2026-02-26", "duration_seconds": 217.0}, {"user_id": 1, "piste_id": 6, "run_date": "2026-02-26", "duration_seconds": 119.0}, {"user_id": 7, "piste_id": 11, "run_date": "2026-01-27", "duration_seconds": 127.002}, {"user_id": 7, "piste_id": 1, "run_date": "2026-01-27", "duration_seconds": 729.001}, {"user_id": 7, "piste_id": 5, "run_date": "2026-01-27", "duration_seconds": 91.0}, {"user_id": 7, "piste_id": 5, "run_date": "2026-01-27", "duration_seconds": 110.0}, {"user_id": 7, "piste_id": 1, "run_date": "2026-01-27", "duration_seconds": 662.0}, {"user_id": 7, "piste_id": 6, "run_date": "2026-01-27", "duration_seconds": 96.998}, {"user_id": 5, "piste_id": 11, "run_date": "2026-03-01", "duration_seconds": 109.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-03-01", "duration_seconds": 128.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-03-01", "duration_seconds": 161.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-03-01", "duration_seconds": 120.0}, {"user_id": 5, "piste_id": 1, "run_date": "2026-03-01", "duration_seconds": 493.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-10", "duration_seconds": 172.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-10", "duration_seconds": 175.0}, {"user_id": 5, "piste_id": 17, "run_date": "2026-02-10", "duration_seconds": 100.0}, {"user_id": 5, "piste_id": 16, "run_date": "2026-02-10", "duration_seconds": 182.0}, {"user_id": 5, "piste_id": 14, "run_date": "2026-02-13", "duration_seconds": 54.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-13", "duration_seconds": 180.0}, {"user_id": 5, "piste_id": 11, "run_date": "2026-02-13", "duration_seconds": 89.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-02", "duration_seconds": 130.0}, {"user_id": 5, "piste_id": 11, "run_date": "2026-02-02", "duration_seconds": 369.0}, {"user_id": 5, "piste_id": 10, "run_date": "2026-02-02", "duration_seconds": 534.0}, {"user_id": 5, "piste_id": 18, "run_date": "2026-02-02", "duration_seconds": 184.0}, {"user_id": 5, "piste_id": 17, "run_date": "2026-02-02", "duration_seconds": 104.0}, {"user_id": 5, "piste_id": 16, "run_date": "2026-02-02", "duration_seconds": 107.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-01-20", "duration_seconds": 128.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-01-20", "duration_seconds": 92.0}, {"user_id": 5, "piste_id": 6, "run_date": "2026-01-20", "duration_seconds": 101.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-01-20", "duration_seconds": 129.0}, {"user_id": 5, "piste_id": 21, "run_date": "2026-01-22", "duration_seconds": 107.0}, {"user_id": 5, "piste_id": 8, "run_date": "2026-01-24", "duration_seconds": 69.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-01-24", "duration_seconds": 163.0}, {"user_id": 5, "piste_id": 6, "run_date": "2026-01-24", "duration_seconds": 125.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-01-24", "duration_seconds": 88.0}, {"user_id": 5, "piste_id": 1, "run_date": "2026-01-24", "duration_seconds": 165.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-01-24", "duration_seconds": 108.0}, {"user_id": 5, "piste_id": 1, "run_date": "2026-01-24", "duration_seconds": 483.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-01-24", "duration_seconds": 92.0}, {"user_id": 5, "piste_id": 1, "run_date": "2026-01-24", "duration_seconds": 195.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-01-24", "duration_seconds": 92.0}, {"user_id": 5, "piste_id": 1, "run_date": "2026-01-24", "duration_seconds": 190.0}, {"user_id": 5, "piste_id": 17, "run_date": "2026-02-25", "duration_seconds": 228.0}, {"user_id": 5, "piste_id": 16, "run_date": "2026-02-25", "duration_seconds": 169.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-02-26", "duration_seconds": 217.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-26", "duration_seconds": 171.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-02-26", "duration_seconds": 172.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-26", "duration_seconds": 162.0}, {"user_id": 5, "piste_id": 6, "run_date": "2026-02-26", "duration_seconds": 205.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-26", "duration_seconds": 268.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-26", "duration_seconds": 190.0}, {"user_id": 5, "piste_id": 9, "run_date": "2026-02-26", "duration_seconds": 237.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-26", "duration_seconds": 264.0}, {"user_id": 5, "piste_id": 11, "run_date": "2026-02-27", "duration_seconds": 127.0}, {"user_id": 5, "piste_id": 9, "run_date": "2026-02-27", "duration_seconds": 105.0}, {"user_id": 5, "piste_id": 9, "run_date": "2026-02-27", "duration_seconds": 113.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-27", "duration_seconds": 139.0}, {"user_id": 5, "piste_id": 11, "run_date": "2026-02-27", "duration_seconds": 84.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-27", "duration_seconds": 118.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-27", "duration_seconds": 155.0}, {"user_id": 5, "piste_id": 1, "run_date": "2026-02-27", "duration_seconds": 359.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-02-27", "duration_seconds": 141.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-02-27", "duration_seconds": 143.0}, {"user_id": 5, "piste_id": 9, "run_date": "2026-02-27", "duration_seconds": 113.0}, {"user_id": 5, "piste_id": 11, "run_date": "2026-02-27", "duration_seconds": 116.0}, {"user_id": 5, "piste_id": 1, "run_date": "2026-02-27", "duration_seconds": 422.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-27", "duration_seconds": 116.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-27", "duration_seconds": 534.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-27", "duration_seconds": 143.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-03", "duration_seconds": 370.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-02-03", "duration_seconds": 195.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-03", "duration_seconds": 450.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-03", "duration_seconds": 216.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-03", "duration_seconds": 206.0}, {"user_id": 5, "piste_id": 10, "run_date": "2026-02-03", "duration_seconds": 962.0}, {"user_id": 5, "piste_id": 17, "run_date": "2026-02-03", "duration_seconds": 126.0}, {"user_id": 5, "piste_id": 16, "run_date": "2026-02-03", "duration_seconds": 165.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-01-31", "duration_seconds": 365.0}, {"user_id": 5, "piste_id": 18, "run_date": "2026-01-31", "duration_seconds": 78.0}, {"user_id": 5, "piste_id": 17, "run_date": "2026-01-31", "duration_seconds": 206.0}, {"user_id": 5, "piste_id": 16, "run_date": "2026-01-31", "duration_seconds": 72.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-01-31", "duration_seconds": 232.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-01-31", "duration_seconds": 298.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-01-31", "duration_seconds": 250.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-01-31", "duration_seconds": 234.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-01-31", "duration_seconds": 185.0}, {"user_id": 5, "piste_id": 1, "run_date": "2026-01-31", "duration_seconds": 483.0}, {"user_id": 5, "piste_id": 11, "run_date": "2026-02-04", "duration_seconds": 92.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-02-04", "duration_seconds": 124.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-04", "duration_seconds": 116.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-04", "duration_seconds": 82.0}, {"user_id": 5, "piste_id": 1, "run_date": "2026-02-04", "duration_seconds": 181.0}, {"user_id": 5, "piste_id": 6, "run_date": "2026-02-04", "duration_seconds": 104.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-05", "duration_seconds": 66.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-02-05", "duration_seconds": 82.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-05", "duration_seconds": 90.0}, {"user_id": 5, "piste_id": 5, "run_date": "2026-02-05", "duration_seconds": 75.0}, {"user_id": 5, "piste_id": 11, "run_date": "2026-02-05", "duration_seconds": 82.0}, {"user_id": 5, "piste_id": 11, "run_date": "2026-02-05", "duration_seconds": 82.0}, {"user_id": 5, "piste_id": 7, "run_date": "2026-02-05", "duration_seconds": 77.0}, {"user_id": 5, "piste_id": 6, "run_date": "2026-02-06", "duration_seconds": 129.0}, {"user_id": 5, "piste_id": 12, "run_date": "2026-02-06", "duration_seconds": 278.0}, {"user_id": 5, "piste_id": 1, "run_date": "2026-02-06", "duration_seconds": 849.0}, {"user_id": 5, "piste_id": 18, "run_date": "2026-02-06", "duration_seconds": 52.0}, {"user_id": 5, "piste_id": 17, "run_date": "2026-02-06", "duration_seconds": 95.0}, {"user_id": 5, "piste_id": 16, "run_date": "2026-02-06", "duration_seconds": 81.0}, {"user_id": 5, "piste_id": 11, "run_date": "2026-02-06", "duration_seconds": 129.0}]};</script>
     
-            <div class="folium-map" id="map_7a37505ee535ea8ee594876c695f86d5" ></div>
+    <div id="pw-title" style="
+        position: fixed;
+        top: 16px; left: 50%; transform: translateX(-50%);
+        background: #1e1e1e;
+        color: #f0f0f0;
+        padding: 8px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+        font-family: sans-serif;
+        font-weight: bold;
+        z-index: 1000;
+        pointer-events: none;
+    ">
+        ⛷️ Vichères-Liddes | Quack Quack Season 2025/26 🦆
+    </div>
+    
+    
+    <div id="pw-centre" style="position: fixed; bottom: 120px; right: 12px; z-index: 1000;">
+        <button onclick="map_0c26fcad5079ddf5af82eb1174cb373b.setView([45.987862199999995, 7.15351365], 14);"
+            style="
+                background: #1e1e1e;
+                color: #f0f0f0;
+                border: 1px solid #3a3a3a;
+                border-radius: 6px;
+                width: 36px; height: 36px;
+                padding: 0;
+                cursor: pointer;
+                font-size: 18px;
+                line-height: 36px;
+                text-align: center;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+            ">
+            &#127919;
+        </button>
+    </div>
+    
+    
+<div id="pw-panel" style="
+    position:fixed; top:20px; left:12px;
+    width:220px; max-height:60vh; overflow-y:auto;
+    background:#1e1e1e; border-radius:8px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.5);
+    padding:12px; z-index:1000; font-family:sans-serif;
+    color:#f0f0f0;
+">
+  <div style="font-weight:bold;font-size:14px;margin-bottom:8px;
+              border-bottom:1px solid #3a3a3a;padding-bottom:6px">
+    &#127942; Leaderboard
+  </div>
+  <div style="display:flex;gap:4px;margin-bottom:10px">
+    <button id="pw-tab-days" onclick="pwShowTab('days')"
+      style="padding:5px 10px;border:none;border-radius:4px;cursor:pointer;font-weight:bold;background:#4287f5;color:white;">&#128197; Days</button>
+    <button id="pw-tab-pistes" onclick="pwShowTab('pistes')"
+      style="padding:5px 10px;border:none;border-radius:4px;cursor:pointer;font-weight:bold;background:#2a2a2a;color:#999999;">&#127956;&#65039; Runs</button>
+    <button id="pw-tab-medals" onclick="pwShowTab('medals')"
+      style="padding:5px 10px;border:none;border-radius:4px;cursor:pointer;font-weight:bold;background:#2a2a2a;color:#999999;">&#129351; Medals</button>
+  </div>
+  <div id="pw-body-days"><i style='color:#999999'>Loading...</i></div>
+  <div id="pw-body-pistes" style="display:none"><i style='color:#999999'>Loading...</i></div>
+  <div id="pw-body-medals" style="display:none"><i style='color:#999999'>Loading...</i></div>
+</div>
+<script>
+  var _pwTabs = ['days','pistes','medals'];
+  var _pwActive = 'padding:5px 10px;border:none;border-radius:4px;cursor:pointer;font-weight:bold;background:#4287f5;color:white;';
+  var _pwInactive = 'padding:5px 10px;border:none;border-radius:4px;cursor:pointer;font-weight:bold;background:#2a2a2a;color:#999999;';
+  function pwShowTab(name) {
+    _pwTabs.forEach(function(t) {
+      document.getElementById('pw-body-'+t).style.display = (t===name)?'':'none';
+      document.getElementById('pw-tab-'+t).style.cssText = (t===name)?_pwActive:_pwInactive;
+    });
+  }
+</script>
+    
+<div id="pw-date-panel" style="
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    background:#1e1e1e; border-radius:8px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.5);
+    padding:12px 24px 8px; z-index:1000; font-family:sans-serif;
+    min-width:480px; max-width:700px; width:45vw;
+    color:#f0f0f0;
+">
+  <div style="display:flex;justify-content:space-between;
+              align-items:center;margin-bottom:16px">
+    <span style="font-weight:bold;font-size:13px">&#128197; Date range</span>
+    <span id="pw-date-label"
+      style="font-size:12px;color:#f0f0f0;font-weight:bold;
+             background:#2a2a2a;padding:2px 10px;border-radius:4px"></span>
+    <button id="pw-reset-btn" onclick="pwResetDates()"
+      style="border:1px solid #3a3a3a;border-radius:4px;padding:2px 8px;
+             font-size:11px;cursor:pointer;background:#2a2a2a;color:#999999">
+      Reset
+    </button>
+  </div>
+  <!-- extra bottom padding leaves room for pip labels below the track -->
+  <div id="pw-slider" style="margin:0 8px 32px"></div>
+</div>
+    
+<div id="pw-mobile-tabbar">
+  <button id="pw-mtab-lb" onclick="pwMobileShow('lb')">
+    <span style="font-size:22px">&#127942;</span><span>Stats</span>
+  </button>
+  <button id="pw-mtab-map" onclick="pwMobileClose()" class="pw-mtab-active">
+    <span style="font-size:22px">&#127956;&#65039;</span><span>Map</span>
+  </button>
+  <button id="pw-mtab-filter" onclick="pwMobileShow('filter')">
+    <span style="font-size:22px">&#128197;</span><span>Filter</span>
+  </button>
+</div>
+
+<div id="pw-mobile-sheet">
+  <div onclick="pwMobileClose()"
+    style="text-align:center;padding:10px 0 6px;cursor:pointer;flex-shrink:0">
+    <div style="display:inline-block;width:36px;height:4px;
+                background:#3a3a3a;border-radius:2px"></div>
+  </div>
+
+  <div id="pw-mobile-lb" style="padding:0 14px 20px;display:none">
+    <div style="font-weight:bold;margin-bottom:8px;
+                border-bottom:1px solid #3a3a3a;padding-bottom:6px">
+      &#127942; Leaderboard
+    </div>
+    <div style="display:flex;gap:4px;margin-bottom:10px">
+      <button id="pw-mlb-days" onclick="pwMobileShowTab('days')"
+        style="flex:1;padding:8px 0;border:none;border-radius:4px;cursor:pointer;font-weight:bold;background:#4287f5;color:white;">&#128197; Days</button>
+      <button id="pw-mlb-pistes" onclick="pwMobileShowTab('pistes')"
+        style="flex:1;padding:8px 0;border:none;border-radius:4px;cursor:pointer;font-weight:bold;background:#2a2a2a;color:#999999;">&#127956;&#65039; Runs</button>
+      <button id="pw-mlb-medals" onclick="pwMobileShowTab('medals')"
+        style="flex:1;padding:8px 0;border:none;border-radius:4px;cursor:pointer;font-weight:bold;background:#2a2a2a;color:#999999;">&#129351; Medals</button>
+    </div>
+    <div id="pw-body-days-m"><i style='color:#999999'>Loading...</i></div>
+    <div id="pw-body-pistes-m" style="display:none"><i style='color:#999999'>Loading...</i></div>
+    <div id="pw-body-medals-m" style="display:none"><i style='color:#999999'>Loading...</i></div>
+  </div>
+
+  <div id="pw-mobile-filter" style="padding:0 14px 20px;display:none">
+    <div style="font-weight:bold;margin-bottom:8px;
+                border-bottom:1px solid #3a3a3a;padding-bottom:6px">
+      &#128197; Date filter
+    </div>
+    <div style="display:flex;justify-content:space-between;
+                align-items:center;margin-bottom:14px">
+      <span id="pw-mobile-filter-label"
+        style="font-weight:bold;
+               background:#2a2a2a;padding:2px 10px;border-radius:4px;color:#f0f0f0"></span>
+      <button onclick="pwResetDates()"
+        style="border:1px solid #3a3a3a;border-radius:4px;padding:2px 8px;
+               cursor:pointer;background:#2a2a2a;color:#999999">
+        Reset
+      </button>
+    </div>
+    <!-- extra bottom margin for pip labels -->
+    <div id="pw-mobile-slider" style="margin:0 8px 36px"></div>
+  </div>
+</div>
+    
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var MAP = map_0c26fcad5079ddf5af82eb1174cb373b;
+  L.control.zoom({ position: 'bottomright' }).addTo(MAP);
+  var DATA = window.POWPAL_DATA;
+  var pwLayers = {};
+  var pwMinDate = '', pwMaxDate = '';
+
+  // Build a registry of piste_db_id -> Leaflet layer from Folium's GeoJSON layers
+  MAP.eachLayer(function(layer) {
+    if (layer.feature && layer.feature.properties) {
+      var pid = layer.feature.properties.piste_db_id;
+      if (pid != null) {
+        pwLayers[pid] = layer;
+        layer.bindPopup('', {maxWidth: 280});
+      }
+    }
+  });
+
+  function fmtTime(s) {
+    var m = Math.floor(s / 60);
+    var sec = Math.floor(s % 60);
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  // --- Main filter entry point ---
+  function pwFilter(from, to) {
+    var runs = DATA.runs.filter(function(r) {
+      return r.run_date >= from && r.run_date <= to;
+    });
+    pwUpdatePopups(runs);
+    pwUpdatePanel(runs);
+  }
+
+  // --- Piste popup update ---
+  function pwUpdatePopups(runs) {
+    // best[piste_id][user_id] = min duration
+    var best = {};
+    runs.forEach(function(r) {
+      if (!best[r.piste_id]) best[r.piste_id] = {};
+      var cur = best[r.piste_id][r.user_id];
+      if (cur === undefined || r.duration_seconds < cur)
+        best[r.piste_id][r.user_id] = r.duration_seconds;
+    });
+
+    Object.keys(pwLayers).forEach(function(pid) {
+      var layer = pwLayers[pid];
+      var piste = DATA.pistes[pid];
+      var label = (piste && piste.name) ? piste.name : 'Piste';
+      var html = '<b>' + label + '</b><br>';
+
+      if (best[pid]) {
+        var sorted = Object.keys(best[pid])
+          .map(function(uid) { return {uid: uid, t: best[pid][uid]}; })
+          .sort(function(a, b) { return a.t - b.t; })
+          .slice(0, 5);
+        html += '<table style="width:100%;font-size:12px;border-collapse:collapse">'
+          + '<tr><th style="text-align:left">#</th>'
+          + '<th style="text-align:left">Rider</th>'
+          + '<th style="text-align:right">Best</th></tr>';
+        sorted.forEach(function(e, i) {
+          var u = DATA.users[e.uid];
+          html += '<tr>'
+            + '<td style="color:#999;padding:2px 4px">' + (i + 1) + '</td>'
+            + '<td style="color:' + u.colour + ';padding:2px 4px"><b>'
+            + u.display_name + '</b></td>'
+            + '<td style="text-align:right;padding:2px 4px">'
+            + fmtTime(e.t) + '</td></tr>';
+        });
+        html += '</table>';
+      } else {
+        html += '<i style="color:#aaa;font-size:12px">No runs in this period</i>';
+      }
+      layer.setPopupContent(html);
+    });
+  }
+
+  // Updates both the desktop panel element and its mobile counterpart
+  function _setBodyHtml(key, html) {
+    var d = document.getElementById('pw-body-' + key);
+    var m = document.getElementById('pw-body-' + key + '-m');
+    if (d) d.innerHTML = html;
+    if (m) m.innerHTML = html;
+  }
+
+  // --- Leaderboard panel update ---
+  function pwUpdatePanel(runs) {
+    pwUpdateDays(runs);
+    pwUpdatePistes(runs);
+    pwUpdateMedals(runs);
+  }
+
+  function pwUpdateDays(runs) {
+    var daysets = {};
+    runs.forEach(function(r) {
+      if (!daysets[r.user_id]) daysets[r.user_id] = {};
+      daysets[r.user_id][r.run_date] = 1;
+    });
+    var rows = Object.keys(DATA.users).map(function(uid) {
+      return {uid: uid, value: daysets[uid] ? Object.keys(daysets[uid]).length : 0};
+    }).sort(function(a, b) { return b.value - a.value; });
+    _setBodyHtml('days', _statTableHtml(rows, 'Days'));
+  }
+
+  function pwUpdatePistes(runs) {
+    var counts = {};
+    runs.forEach(function(r) {
+      counts[r.user_id] = (counts[r.user_id] || 0) + 1;
+    });
+    var rows = Object.keys(DATA.users).map(function(uid) {
+      return {uid: uid, value: counts[uid] || 0};
+    }).sort(function(a, b) { return b.value - a.value; });
+    _setBodyHtml('pistes', _statTableHtml(rows, 'Runs'));
+  }
+
+  function pwUpdateMedals(runs) {
+    var best = {};
+    runs.forEach(function(r) {
+      if (!best[r.piste_id]) best[r.piste_id] = {};
+      var cur = best[r.piste_id][r.user_id];
+      if (cur === undefined || r.duration_seconds < cur)
+        best[r.piste_id][r.user_id] = r.duration_seconds;
+    });
+
+    var medals = {};
+    Object.keys(DATA.users).forEach(function(uid) {
+      medals[uid] = {gold: 0, silver: 0, bronze: 0};
+    });
+    Object.keys(best).forEach(function(pid) {
+      var sorted = Object.keys(best[pid])
+        .map(function(uid) { return {uid: uid, t: best[pid][uid]}; })
+        .sort(function(a, b) { return a.t - b.t; });
+      if (sorted[0]) medals[sorted[0].uid].gold++;
+      if (sorted[1]) medals[sorted[1].uid].silver++;
+      if (sorted[2]) medals[sorted[2].uid].bronze++;
+    });
+
+    var rows = Object.keys(DATA.users).map(function(uid) {
+      return {uid: uid, gold: medals[uid].gold,
+               silver: medals[uid].silver, bronze: medals[uid].bronze};
+    }).sort(function(a, b) {
+      return b.gold - a.gold || b.silver - a.silver || b.bronze - a.bronze;
+    });
+    _setBodyHtml('medals', _medalsTableHtml(rows));
+  }
+
+  // --- HTML renderers ---
+  function _statTableHtml(rows, valueLabel) {
+    if (!rows.some(function(r) { return r.value > 0; }))
+      return "<i style='color:#999999'>No data in this period</i>";
+    var h = "<table style='width:100%;border-collapse:collapse;color:#f0f0f0'>"
+      + "<tr style='border-bottom:1px solid #3a3a3a'>"
+      + "<th style='text-align:left;padding:2px 4px'>#</th>"
+      + "<th style='text-align:left;padding:2px 4px'>Rider</th>"
+      + "<th style='text-align:right;padding:2px 4px'>" + valueLabel + "</th></tr>";
+    var rank = 1;
+    rows.forEach(function(r) {
+      if (r.value === 0) return;
+      var u = DATA.users[r.uid];
+      h += "<tr><td style='padding:3px 4px;color:#999999'>" + rank + "</td>"
+        + "<td style='padding:3px 4px;color:" + u.colour + "'><b>"
+        + u.display_name + "</b></td>"
+        + "<td style='padding:3px 4px;text-align:right;color:#f0f0f0'>" + r.value + "</td></tr>";
+      rank++;
+    });
+    return h + "</table>";
+  }
+
+  function _medalsTableHtml(rows) {
+    if (!rows.some(function(r) { return r.gold + r.silver + r.bronze > 0; }))
+      return "<i style='color:#999999'>No data in this period</i>";
+    var h = "<table style='width:100%;border-collapse:collapse;color:#f0f0f0'>"
+      + "<tr style='border-bottom:1px solid #3a3a3a'>"
+      + "<th style='text-align:left;padding:2px 4px'>#</th>"
+      + "<th style='text-align:left;padding:2px 4px'>Rider</th>"
+      + "<th style='text-align:center;padding:2px 4px'>&#129351;</th>"
+      + "<th style='text-align:center;padding:2px 4px'>&#129352;</th>"
+      + "<th style='text-align:center;padding:2px 4px'>&#129353;</th></tr>";
+    var rank = 1;
+    rows.forEach(function(r) {
+      if (r.gold + r.silver + r.bronze === 0) return;
+      var u = DATA.users[r.uid];
+      h += "<tr><td style='padding:3px 4px;color:#999999'>" + rank + "</td>"
+        + "<td style='padding:3px 4px;color:" + u.colour + "'><b>"
+        + u.display_name + "</b></td>"
+        + "<td style='padding:3px 4px;text-align:center;color:#f0f0f0'>" + (r.gold || '-') + "</td>"
+        + "<td style='padding:3px 4px;text-align:center;color:#f0f0f0'>" + (r.silver || '-') + "</td>"
+        + "<td style='padding:3px 4px;text-align:center;color:#f0f0f0'>" + (r.bronze || '-') + "</td>"
+        + "</tr>";
+      rank++;
+    });
+    return h + "</table>";
+  }
+
+  // --- noUiSlider setup (calendar-proportional) ---
+  var pwDates = [];
+  var pwDayOffsets = [];  // calendar day offset from first date for each ski day
+  var pwTotalDays = 1;
+  var pwSlider = null;
+
+  function dateToDayOffset(iso) {
+    return Math.round((new Date(iso) - new Date(pwDates[0])) / 86400000);
+  }
+
+  function dayOffsetToIso(offset) {
+    var ms = new Date(pwDates[0]).getTime() + Math.round(offset) * 86400000;
+    return new Date(ms).toISOString().slice(0, 10);
+  }
+
+  function fmtDateLabel(iso) {
+    var parts = iso.split('-');
+    var months = ['Jan','Feb','Mar','Apr','May','Jun',
+                  'Jul','Aug','Sep','Oct','Nov','Dec'];
+    return parts[2] + ' ' + months[parseInt(parts[1], 10) - 1];
+  }
+
+  function pwUpdateLabel(from, to) {
+    var label = from === to
+      ? fmtDateLabel(from)
+      : fmtDateLabel(from) + ' – ' + fmtDateLabel(to);
+    var d = document.getElementById('pw-date-label');
+    var m = document.getElementById('pw-mobile-filter-label');
+    if (d) d.textContent = label;
+    if (m) m.textContent = label;
+  }
+
+  window.pwFilter = pwFilter;
+  window.pwResetDates = function() {
+    if (pwSlider) pwSlider.set([0, pwTotalDays]);
+    // mobile slider syncs automatically via the flag below
+  };
+
+  if (DATA.runs.length > 0) {
+    // Collect sorted unique dates and compute calendar offsets
+    var seen = {};
+    DATA.runs.forEach(function(r) { seen[r.run_date] = 1; });
+    pwDates = Object.keys(seen).sort();
+    pwMinDate = pwDates[0];
+    pwMaxDate = pwDates[pwDates.length - 1];
+    pwTotalDays = Math.max(dateToDayOffset(pwMaxDate), 1);
+    pwDayOffsets = pwDates.map(dateToDayOffset);
+
+    // Label selection: greedily pick dates with at least 13% of total span
+    var minGap = Math.max(1, Math.ceil(pwTotalDays * 0.13));
+    var labelOffsets = [0];
+    var lastLbl = 0;
+    for (var i = 1; i < pwDayOffsets.length - 1; i++) {
+      if (pwDayOffsets[i] - lastLbl >= minGap) {
+        labelOffsets.push(pwDayOffsets[i]);
+        lastLbl = pwDayOffsets[i];
+      }
+    }
+    if (pwTotalDays - lastLbl >= minGap) labelOffsets.push(pwTotalDays);
+
+    function _injectTicks(sliderEl) {
+      var base = sliderEl.querySelector('.noUi-base');
+      pwDayOffsets.forEach(function(offset) {
+        var tick = document.createElement('div');
+        tick.className = 'pw-day-tick';
+        tick.style.left = (offset / pwTotalDays * 100) + '%';
+        base.appendChild(tick);
+      });
+    }
+
+    // Init desktop slider
+    pwSlider = noUiSlider.create(document.getElementById('pw-slider'), {
+      start: [0, pwTotalDays],
+      step: 1,
+      range: { min: 0, max: pwTotalDays },
+      connect: true,
+      tooltips: false,
+      pips: {
+        mode: 'values',
+        values: labelOffsets,
+        density: 100,
+        format: {
+          to: function(v) { return fmtDateLabel(dayOffsetToIso(Math.round(v))); },
+          from: Number,
+        },
+      },
+    });
+    _injectTicks(document.getElementById('pw-slider'));
+
+    // Init mobile slider with an independently constructed config (JSON clone drops functions)
+    var mobileSliderEl = document.getElementById('pw-mobile-slider');
+    var pwMobileSlider = noUiSlider.create(mobileSliderEl, {
+      start: [0, pwTotalDays],
+      step: 1,
+      range: { min: 0, max: pwTotalDays },
+      connect: true,
+      tooltips: false,
+      pips: {
+        mode: 'values',
+        values: labelOffsets,
+        density: 100,
+        format: {
+          to: function(v) { return fmtDateLabel(dayOffsetToIso(Math.round(v))); },
+          from: Number,
+        },
+      },
+    });
+    _injectTicks(mobileSliderEl);
+
+    // Sync sliders without infinite loops
+    var _syncing = false;
+    pwSlider.on('update', function(values) {
+      var from = dayOffsetToIso(values[0]);
+      var to   = dayOffsetToIso(values[1]);
+      pwUpdateLabel(from, to);
+      pwFilter(from, to);
+      if (!_syncing) { _syncing = true; pwMobileSlider.set(values); _syncing = false; }
+    });
+    pwMobileSlider.on('update', function(values) {
+      var from = dayOffsetToIso(values[0]);
+      var to   = dayOffsetToIso(values[1]);
+      pwUpdateLabel(from, to);
+      pwFilter(from, to);
+      if (!_syncing) { _syncing = true; pwSlider.set(values); _syncing = false; }
+    });
+
+    // Initial render — full season range
+    pwUpdateLabel(pwMinDate, pwMaxDate);
+    pwFilter(pwMinDate, pwMaxDate);
+  }
+
+  // --- Mobile sheet ---
+  var _mlbTabs = ['days', 'pistes', 'medals'];
+  var _mlbActive = 'flex:1;padding:8px 0;border:none;border-radius:4px;cursor:pointer;font-weight:bold;background:#4287f5;color:white;';
+  var _mlbInactive = 'flex:1;padding:8px 0;border:none;border-radius:4px;cursor:pointer;font-weight:bold;background:#2a2a2a;color:#999999;';
+
+  window.pwMobileShow = function(section) {
+    document.getElementById('pw-mobile-sheet').classList.add('pw-open');
+    ['lb', 'filter'].forEach(function(s) {
+      document.getElementById('pw-mobile-' + s).style.display =
+        (s === section) ? '' : 'none';
+    });
+    ['lb', 'map', 'filter'].forEach(function(t) {
+      var btn = document.getElementById('pw-mtab-' + t);
+      btn.classList.toggle('pw-mtab-active', t === section);
+    });
+  };
+
+  window.pwMobileClose = function() {
+    document.getElementById('pw-mobile-sheet').classList.remove('pw-open');
+    ['lb', 'filter'].forEach(function(t) {
+      document.getElementById('pw-mtab-' + t).classList.remove('pw-mtab-active');
+    });
+    document.getElementById('pw-mtab-map').classList.add('pw-mtab-active');
+  };
+
+  window.pwMobileShowTab = function(name) {
+    _mlbTabs.forEach(function(t) {
+      document.getElementById('pw-body-' + t + '-m').style.display =
+        (t === name) ? '' : 'none';
+      document.getElementById('pw-mlb-' + t).style.cssText =
+        (t === name) ? _mlbActive : _mlbInactive;
+    });
+  };
+});
+</script>
+    
+            <div class="folium-map" id="map_0c26fcad5079ddf5af82eb1174cb373b" ></div>
         
 </body>
 <script>
     
     
-            var map_7a37505ee535ea8ee594876c695f86d5 = L.map(
-                "map_7a37505ee535ea8ee594876c695f86d5",
+            var map_0c26fcad5079ddf5af82eb1174cb373b = L.map(
+                "map_0c26fcad5079ddf5af82eb1174cb373b",
                 {
-                    center: [45.982846256423976, 7.151301317742821],
+                    center: [45.987862199999995, 7.15351365],
                     crs: L.CRS.EPSG3857,
                     ...{
-  "zoom": 13,
-  "zoomControl": true,
+  "zoom": 14,
+  "zoomControl": false,
   "preferCanvas": false,
 }
 
@@ -110,7 +723,7 @@
 
         
     
-            var tile_layer_ecdf757e446817a8595b32ac27573898 = L.tileLayer(
+            var tile_layer_d0305b9ae7aa9533019e58b732436bcc = L.tileLayer(
                 "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 {
   "minZoom": 0,
@@ -127,128 +740,950 @@
             );
         
     
-            tile_layer_ecdf757e446817a8595b32ac27573898.addTo(map_7a37505ee535ea8ee594876c695f86d5);
+            tile_layer_d0305b9ae7aa9533019e58b732436bcc.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
         
     
-        function geo_json_4c621a41f34681acc4f4a27892fa13c3_styler(feature) {
-            switch(feature.id) {
-                case "0": case "2": case "4": case "6": case "7": 
-                    return {"color": "blue", "opacity": 0.9, "weight": 4};
-                case "1": case "11": 
-                    return {"color": "black", "opacity": 0.9, "weight": 4};
+        function geo_json_2ae1fbc35146db2cbcc025e9fd503b9e_styler(feature) {
+            switch(feature.properties.piste_db_id) {
                 default:
-                    return {"color": "red", "opacity": 0.9, "weight": 4};
-            }
-        }
-        function geo_json_4c621a41f34681acc4f4a27892fa13c3_highlighter(feature) {
-            switch(feature.id) {
-                default:
-                    return {"opacity": 1.0, "weight": 6};
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
             }
         }
 
-        function geo_json_4c621a41f34681acc4f4a27892fa13c3_onEachFeature(feature, layer) {
+        function geo_json_2ae1fbc35146db2cbcc025e9fd503b9e_onEachFeature(feature, layer) {
 
             layer.on({
-                mouseout: function(e) {
-                    if(typeof e.target.setStyle === "function"){
-                            geo_json_4c621a41f34681acc4f4a27892fa13c3.resetStyle(e.target);
-                    }
-                },
-                mouseover: function(e) {
-                    if(typeof e.target.setStyle === "function"){
-                        const highlightStyle = geo_json_4c621a41f34681acc4f4a27892fa13c3_highlighter(e.target.feature)
-                        e.target.setStyle(highlightStyle);
-                    }
-                },
             });
         };
-        var geo_json_4c621a41f34681acc4f4a27892fa13c3 = L.geoJson(null, {
-                onEachFeature: geo_json_4c621a41f34681acc4f4a27892fa13c3_onEachFeature,
+        var geo_json_2ae1fbc35146db2cbcc025e9fd503b9e = L.geoJson(null, {
+                onEachFeature: geo_json_2ae1fbc35146db2cbcc025e9fd503b9e_onEachFeature,
             
-                style: geo_json_4c621a41f34681acc4f4a27892fa13c3_styler,
+                style: geo_json_2ae1fbc35146db2cbcc025e9fd503b9e_styler,
             ...{
 }
         });
 
-        function geo_json_4c621a41f34681acc4f4a27892fa13c3_add (data) {
-            geo_json_4c621a41f34681acc4f4a27892fa13c3
+        function geo_json_2ae1fbc35146db2cbcc025e9fd503b9e_add (data) {
+            geo_json_2ae1fbc35146db2cbcc025e9fd503b9e
                 .addData(data);
         }
-            geo_json_4c621a41f34681acc4f4a27892fa13c3_add({"bbox": [7.1448591, 45.9736179, 7.1620818, 45.9985305], "features": [{"bbox": [7.1538375, 45.979832, 7.1562409, 45.9985305], "geometry": {"coordinates": [[7.1538611, 45.979832], [7.1538901, 45.980045], [7.1539518, 45.9803064], [7.1540442, 45.980557], [7.1542902, 45.9808548], [7.1544995, 45.9813116], [7.154636, 45.9818202], [7.1546528, 45.9821475], [7.1546314, 45.9828602], [7.1544169, 45.98362], [7.1541733, 45.9842274], [7.1541673, 45.9844118], [7.1541788, 45.9846778], [7.1541358, 45.9848372], [7.1541729, 45.9852542], [7.1540836, 45.9855899], [7.154013, 45.9858498], [7.153957, 45.9864163], [7.1539082, 45.9867907], [7.1538395, 45.9871252], [7.1539417, 45.9877276], [7.1539106, 45.9879034], [7.1538578, 45.9879944], [7.1538375, 45.9880834], [7.1538412, 45.9881567], [7.1538661, 45.9882211], [7.1539403, 45.9883537], [7.1540167, 45.9886032], [7.1540168, 45.9887781], [7.1540317, 45.9888863], [7.1540615, 45.9889795], [7.1541129, 45.9890854], [7.154141, 45.9891774], [7.1541327, 45.989365], [7.1541195, 45.9894697], [7.1541245, 45.9895606], [7.1541708, 45.9897275], [7.1542652, 45.9898828], [7.1543712, 45.9900048], [7.1543994, 45.9900646], [7.1543977, 45.9901222], [7.1543475, 45.9902168], [7.1542454, 45.9903983], [7.1542205, 45.9904927], [7.1542271, 45.9906699], [7.1542404, 45.9907378], [7.1542321, 45.9908195], [7.1542023, 45.990953], [7.1541592, 45.9910911], [7.1541708, 45.9911659], [7.1542078, 45.991223], [7.1543679, 45.9913592], [7.1544375, 45.9914317], [7.154459, 45.9915111], [7.1544689, 45.9916112], [7.1544888, 45.9916814], [7.15456, 45.9917642], [7.1546478, 45.9918275], [7.1548847, 45.9919874], [7.1549443, 45.9920726], [7.1549791, 45.9921785], [7.1550172, 45.9923211], [7.1550958, 45.9924443], [7.1552457, 45.9927055], [7.1553997, 45.9930392], [7.1556233, 45.993473], [7.1557046, 45.9936629], [7.1557179, 45.9937035], [7.1557273, 45.993738], [7.1557219, 45.9937743], [7.1557206, 45.9938284], [7.1557125, 45.9939178], [7.1557139, 45.9939784], [7.1557192, 45.9941013], [7.15573, 45.9942514], [7.1557447, 45.9944163], [7.1557702, 45.9945802], [7.1558051, 45.9947917], [7.1558332, 45.9949007], [7.1559003, 45.9951225], [7.1559204, 45.9952231], [7.1559311, 45.9953442], [7.1559151, 45.9954579], [7.1558963, 45.9956144], [7.1558923, 45.9958883], [7.1559204, 45.996165], [7.1559982, 45.9966905], [7.1560264, 45.9968489], [7.1560626, 45.9969635], [7.1561176, 45.9970921], [7.1561846, 45.9972225], [7.1562289, 45.9973222], [7.1562409, 45.9973743], [7.1562409, 45.9974116], [7.1562222, 45.9974843], [7.1561524, 45.997665], [7.15608, 45.9979715], [7.1560585, 45.9980982], [7.1560585, 45.9981672], [7.1560612, 45.9982836], [7.1560612, 45.9983526], [7.1560572, 45.998456], [7.1560626, 45.9985305]], "type": "LineString"}, "id": "0", "properties": {"@id": "way/52040937", "fastest_1": "1:25", "fastest_2": null, "fastest_3": null, "highway": "track", "id": "way/52040937", "name": "Route de Bavon", "name_x": "Route de Bavon", "name_y": "Route de Bavon", "piste:difficulty": "easy", "piste:grooming": null, "piste:name": null, "piste:type": "downhill", "piste_id": "way/52040937", "plot_color": "blue", "run_count": 1, "source": "ESRI 2021", "tracktype": "grade2"}, "type": "Feature"}, {"bbox": [7.1505378, 45.9883642, 7.1569249, 45.989066], "geometry": {"coordinates": [[7.1505378, 45.9890636], [7.150916, 45.989059], [7.151676, 45.989066], [7.1523647, 45.9889844], [7.1532823, 45.9888418], [7.1540167, 45.9886032], [7.1544859, 45.9884652], [7.1552342, 45.988405], [7.1559177, 45.9883642], [7.1564624, 45.9883998], [7.1568273, 45.9884806], [7.1569084, 45.9885487], [7.1569249, 45.9886232], [7.1568269, 45.9887872]], "type": "LineString"}, "id": "1", "properties": {"@id": "way/52041019", "fastest_1": "0:22", "fastest_2": "0:26", "fastest_3": "0:34", "highway": null, "id": "way/52041019", "name": "Piste way/52041019", "name_x": null, "name_y": "Piste way/52041019", "piste:difficulty": "advanced", "piste:grooming": "classic", "piste:name": "La Noire", "piste:type": "downhill", "piste_id": "way/52041019", "plot_color": "black", "run_count": 7, "source": "GPS survey 2010.03.08", "tracktype": null}, "type": "Feature"}, {"bbox": [7.1505005, 45.9854513, 7.1507986, 45.9890636], "geometry": {"coordinates": [[7.1506007, 45.9854513], [7.1506019, 45.9855102], [7.1506177, 45.9855418], [7.1507592, 45.9856855], [7.1507986, 45.9859283], [7.1507233, 45.986401], [7.1507083, 45.9865567], [7.1506956, 45.9866453], [7.1506369, 45.9868045], [7.1506185, 45.9869041], [7.1506133, 45.9871809], [7.1505466, 45.9875603], [7.1505443, 45.987744], [7.150562, 45.9880809], [7.1505142, 45.9883659], [7.1505005, 45.9886136], [7.1505259, 45.9886779], [7.1505929, 45.9887657], [7.1506601, 45.9888563], [7.1506647, 45.9889412], [7.1506567, 45.9889806], [7.15062, 45.9890289], [7.1505378, 45.9890636]], "type": "LineString"}, "id": "2", "properties": {"@id": "way/52041156", "fastest_1": "1:14", "fastest_2": null, "fastest_3": null, "highway": null, "id": "way/52041156", "name": "Piste way/52041156", "name_x": null, "name_y": "Piste way/52041156", "piste:difficulty": "easy", "piste:grooming": "classic", "piste:name": null, "piste:type": "downhill", "piste_id": "way/52041156", "plot_color": "blue", "run_count": 1, "source": "GPS survey 2010.03.08", "tracktype": null}, "type": "Feature"}, {"bbox": [7.1448859, 45.9760355, 7.1552469, 45.9795571], "geometry": {"coordinates": [[7.1448859, 45.9760355], [7.1451343, 45.9761514], [7.1481501, 45.9771826], [7.1492979, 45.9775378], [7.1506246, 45.9779911], [7.1527575, 45.9787974], [7.1542119, 45.9793016], [7.15508, 45.979509], [7.1552469, 45.9795571]], "type": "LineString"}, "id": "3", "properties": {"@id": "way/52041157", "fastest_1": "3:37", "fastest_2": null, "fastest_3": null, "highway": null, "id": "way/52041157", "name": "Piste way/52041157", "name_x": null, "name_y": "Piste way/52041157", "piste:difficulty": "intermediate", "piste:grooming": "classic", "piste:name": "Tessure", "piste:type": "downhill", "piste_id": "way/52041157", "plot_color": "red", "run_count": 1, "source": "GPS survey 2010.03.08", "tracktype": null}, "type": "Feature"}, {"bbox": [7.1478048, 45.9852878, 7.1505378, 45.9891895], "geometry": {"coordinates": [[7.1478048, 45.9852878], [7.1484186, 45.9862663], [7.1487765, 45.9874062], [7.1489182, 45.9881396], [7.1489895, 45.9885979], [7.1491914, 45.9889091], [7.1494192, 45.9891043], [7.1496884, 45.9891895], [7.1498326, 45.989172], [7.1499847, 45.9891434], [7.1501262, 45.9890834], [7.1503882, 45.9890619], [7.1505378, 45.9890636]], "type": "LineString"}, "id": "4", "properties": {"@id": "way/52041158", "fastest_1": "0:30", "fastest_2": "0:32", "fastest_3": null, "highway": null, "id": "way/52041158", "name": "Piste way/52041158", "name_x": null, "name_y": "Piste way/52041158", "piste:difficulty": "easy", "piste:grooming": "classic", "piste:name": null, "piste:type": "downhill", "piste_id": "way/52041158", "plot_color": "blue", "run_count": 2, "source": "GPS survey 2010.03.08", "tracktype": null}, "type": "Feature"}, {"bbox": [7.1464608, 45.9811409, 7.1532851, 45.9821168], "geometry": {"coordinates": [[7.1464608, 45.9821047], [7.1465745, 45.9821168], [7.1466374, 45.9820979], [7.1466613, 45.9820145], [7.1466776, 45.9819278], [7.1468627, 45.9817111], [7.1473141, 45.9814292], [7.1477008, 45.9812234], [7.1481925, 45.9811409], [7.1500164, 45.9812121], [7.1521687, 45.9812381], [7.1532851, 45.9815165]], "type": "LineString"}, "id": "5", "properties": {"@id": "way/52041159", "fastest_1": "3:50", "fastest_2": null, "fastest_3": null, "highway": null, "id": "way/52041159", "name": "La Combette", "name_x": "La Combette", "name_y": "La Combette", "piste:difficulty": "intermediate", "piste:grooming": "classic", "piste:name": null, "piste:type": "downhill", "piste_id": "way/52041159", "plot_color": "red", "run_count": 1, "source": "GPS survey 2010.03.08", "tracktype": null}, "type": "Feature"}, {"bbox": [7.1506007, 45.979832, 7.1538611, 45.9854513], "geometry": {"coordinates": [[7.1506007, 45.9854513], [7.150671, 45.9853805], [7.1507989, 45.9852517], [7.1512082, 45.9848199], [7.1513632, 45.9846961], [7.1515117, 45.9844658], [7.1519974, 45.9835702], [7.1520645, 45.9834465], [7.1523707, 45.9831148], [7.1524717, 45.9829459], [7.1525953, 45.9828341], [7.1527351, 45.9826513], [7.1529098, 45.9824189], [7.1530047, 45.9822726], [7.1531553, 45.9819465], [7.1532851, 45.9815165], [7.1534465, 45.9810923], [7.1534465, 45.9806284], [7.1535349, 45.9802971], [7.1535994, 45.9801543], [7.1536719, 45.9800475], [7.1538611, 45.979832]], "type": "LineString"}, "id": "6", "properties": {"@id": "way/52041160", "fastest_1": "1:29", "fastest_2": "1:39", "fastest_3": "1:53", "highway": "track", "id": "way/52041160", "name": "Piste way/52041160", "name_x": null, "name_y": "Piste way/52041160", "piste:difficulty": "easy", "piste:grooming": null, "piste:name": null, "piste:type": "downhill", "piste_id": "way/52041160", "plot_color": "blue", "run_count": 3, "source": "GPS survey 2010.03.08; mapbox", "tracktype": "grade4"}, "type": "Feature"}, {"bbox": [7.1448591, 45.9758295, 7.1505378, 45.9894125], "geometry": {"coordinates": [[7.1448773, 45.9758295], [7.1448591, 45.9759411], [7.1448859, 45.9760355], [7.1450122, 45.9762979], [7.1451489, 45.9764775], [7.1453183, 45.9766306], [7.1454496, 45.9767351], [7.1455521, 45.976934], [7.1455744, 45.9770463], [7.1455468, 45.9772461], [7.1454645, 45.977459], [7.1454673, 45.9776246], [7.145671, 45.9784208], [7.1458208, 45.9790561], [7.1458031, 45.9795686], [7.1456617, 45.9802136], [7.1457118, 45.9803481], [7.1458212, 45.980565], [7.146008, 45.9813534], [7.1464608, 45.9821047], [7.1466185, 45.9824546], [7.1474824, 45.9842949], [7.1477394, 45.9849956], [7.1478048, 45.9852878], [7.1480235, 45.9869653], [7.1480499, 45.9879256], [7.1481182, 45.9882368], [7.148182, 45.9884043], [7.1483214, 45.9885814], [7.1487241, 45.9888934], [7.149254, 45.9892326], [7.1493801, 45.9892702], [7.149746, 45.9893791], [7.1502922, 45.9894125], [7.1504344, 45.9892825], [7.1505378, 45.9890636]], "type": "LineString"}, "id": "7", "properties": {"@id": "way/52041284", "fastest_1": "0:23", "fastest_2": "0:24", "fastest_3": "0:25", "highway": null, "id": "way/52041284", "name": "Piste way/52041284", "name_x": null, "name_y": "Piste way/52041284", "piste:difficulty": "easy", "piste:grooming": "classic", "piste:name": "Le Chameau", "piste:type": "downhill", "piste_id": "way/52041284", "plot_color": "blue", "run_count": 17, "source": "GPS survey 2010.03.08", "tracktype": null}, "type": "Feature"}, {"bbox": [7.145671, 45.9784208, 7.1538611, 45.9799049], "geometry": {"coordinates": [[7.145671, 45.9784208], [7.1459038, 45.9784805], [7.146959, 45.9785994], [7.1478865, 45.9787622], [7.1495967, 45.9791806], [7.1501538, 45.9793286], [7.1519467, 45.9796891], [7.1532038, 45.9798977], [7.1536127, 45.9799049], [7.1538611, 45.979832]], "type": "LineString"}, "id": "8", "properties": {"@id": "way/52041285", "fastest_1": "1:05", "fastest_2": "2:51", "fastest_3": null, "highway": null, "id": "way/52041285", "name": "Piste way/52041285", "name_x": null, "name_y": "Piste way/52041285", "piste:difficulty": "intermediate", "piste:grooming": null, "piste:name": "Stade", "piste:type": "downhill", "piste_id": "way/52041285", "plot_color": "red", "run_count": 2, "source": "GPS survey 2010.03.08", "tracktype": null}, "type": "Feature"}, {"bbox": [7.1449927, 45.975687, 7.1555801, 45.9793561], "geometry": {"coordinates": [[7.1449927, 45.975687], [7.1469518, 45.9760253], [7.1501175, 45.9772352], [7.1520679, 45.9776777], [7.1532308, 45.9779078], [7.1542063, 45.97824], [7.1546129, 45.9784718], [7.1553902, 45.9789147], [7.1555801, 45.979188], [7.155548, 45.9793561]], "type": "LineString"}, "id": "9", "properties": {"@id": "way/52041286", "fastest_1": "3:39", "fastest_2": null, "fastest_3": null, "highway": null, "id": "way/52041286", "name": "Piste way/52041286", "name_x": null, "name_y": "Piste way/52041286", "piste:difficulty": "intermediate", "piste:grooming": null, "piste:name": "La Chaux", "piste:type": "downhill", "piste_id": "way/52041286", "plot_color": "red", "run_count": 1, "source": "GPS survey 2010.03.08", "tracktype": null}, "type": "Feature"}, {"bbox": [7.1448773, 45.9736179, 7.1557339, 45.9793561], "geometry": {"coordinates": [[7.1448773, 45.9758295], [7.1449927, 45.975687], [7.1452663, 45.9754504], [7.1455846, 45.9751342], [7.1458478, 45.9747308], [7.1460754, 45.9738796], [7.1461702, 45.9736572], [7.1463953, 45.9736179], [7.1471386, 45.9737053], [7.147698, 45.9738386], [7.148233, 45.9740814], [7.1488096, 45.9745968], [7.1491589, 45.9748014], [7.1507172, 45.9751379], [7.1509446, 45.9752289], [7.1515749, 45.975822], [7.1522803, 45.9763198], [7.1527924, 45.9767941], [7.1529981, 45.9771696], [7.1531878, 45.9773135], [7.1536079, 45.9774116], [7.1538379, 45.9775133], [7.1542942, 45.9777379], [7.1545785, 45.9777989], [7.1548682, 45.9778384], [7.1553324, 45.9779409], [7.1556719, 45.9781956], [7.1557339, 45.9783687], [7.1557235, 45.978626], [7.1556127, 45.9789894], [7.1555801, 45.979188], [7.155548, 45.9793561]], "type": "LineString"}, "id": "10", "properties": {"@id": "way/52041287", "fastest_1": "2:16", "fastest_2": "3:02", "fastest_3": "8:34", "highway": null, "id": "way/52041287", "name": "Piste way/52041287", "name_x": null, "name_y": "Piste way/52041287", "piste:difficulty": "intermediate", "piste:grooming": null, "piste:name": "Six ni\u00e9s", "piste:type": "downhill", "piste_id": "way/52041287", "plot_color": "red", "run_count": 3, "source": "GPS survey 2010.03.08", "tracktype": null}, "type": "Feature"}, {"bbox": [7.1564678, 45.9887872, 7.1620818, 45.9907281], "geometry": {"coordinates": [[7.1568269, 45.9887872], [7.156746, 45.9889434], [7.156598, 45.9891554], [7.1565015, 45.989286], [7.1564678, 45.9893566], [7.1564789, 45.9894457], [7.1565435, 45.9895511], [7.1565837, 45.9896594], [7.1566022, 45.9897287], [7.1566427, 45.9897829], [7.1571807, 45.9900025], [7.1576464, 45.9901544], [7.1581734, 45.9902327], [7.1594692, 45.9904383], [7.1600591, 45.9905077], [7.1605057, 45.9905586], [7.1609537, 45.9905433], [7.1613591, 45.9904948], [7.1615634, 45.9905307], [7.1617912, 45.9906006], [7.1620818, 45.9907281]], "type": "LineString"}, "id": "11", "properties": {"@id": "way/982177821", "fastest_1": "1:03", "fastest_2": "1:18", "fastest_3": "1:59", "highway": null, "id": "way/982177821", "name": "Piste way/982177821", "name_x": null, "name_y": "Piste way/982177821", "piste:difficulty": "advanced", "piste:grooming": "classic", "piste:name": "La Noire", "piste:type": "downhill", "piste_id": "way/982177821", "plot_color": "black", "run_count": 4, "source": "GPS survey 2010.03.08", "tracktype": null}, "type": "Feature"}], "type": "FeatureCollection"});
+            geo_json_2ae1fbc35146db2cbcc025e9fd503b9e_add({"features": [{"geometry": {"coordinates": [[7.1538611, 45.979832], [7.1538901, 45.980045], [7.1539518, 45.9803064], [7.1540442, 45.980557], [7.1542902, 45.9808548], [7.1544995, 45.9813116], [7.154636, 45.9818202], [7.1546528, 45.9821475], [7.1546314, 45.9828602], [7.1544169, 45.98362], [7.1541733, 45.9842274], [7.1541673, 45.9844118], [7.1541788, 45.9846778], [7.1541358, 45.9848372], [7.1541729, 45.9852542], [7.1540836, 45.9855899], [7.154013, 45.9858498], [7.153957, 45.9864163], [7.1539082, 45.9867907], [7.1538395, 45.9871252], [7.1539417, 45.9877276], [7.1539106, 45.9879034], [7.1538578, 45.9879944], [7.1538375, 45.9880834], [7.1538412, 45.9881567], [7.1538661, 45.9882211], [7.1539403, 45.9883537], [7.1540167, 45.9886032], [7.1540168, 45.9887781], [7.1540317, 45.9888863], [7.1540615, 45.9889795], [7.1541129, 45.9890854], [7.154141, 45.9891774], [7.1541327, 45.989365], [7.1541195, 45.9894697], [7.1541245, 45.9895606], [7.1541708, 45.9897275], [7.1542652, 45.9898828], [7.1543712, 45.9900048], [7.1543994, 45.9900646], [7.1543977, 45.9901222], [7.1543475, 45.9902168], [7.1542454, 45.9903983], [7.1542205, 45.9904927], [7.1542271, 45.9906699], [7.1542404, 45.9907378], [7.1542321, 45.9908195], [7.1542023, 45.990953], [7.1541592, 45.9910911], [7.1541708, 45.9911659], [7.1542078, 45.991223], [7.1543679, 45.9913592], [7.1544375, 45.9914317], [7.154459, 45.9915111], [7.1544689, 45.9916112], [7.1544888, 45.9916814], [7.15456, 45.9917642], [7.1546478, 45.9918275], [7.1548847, 45.9919874], [7.1549443, 45.9920726], [7.1549791, 45.9921785], [7.1550172, 45.9923211], [7.1550958, 45.9924443], [7.1552457, 45.9927055], [7.1553997, 45.9930392], [7.1556233, 45.993473], [7.1557046, 45.9936629], [7.1557179, 45.9937035], [7.1557273, 45.993738], [7.1557219, 45.9937743], [7.1557206, 45.9938284], [7.1557125, 45.9939178], [7.1557139, 45.9939784], [7.1557192, 45.9941013], [7.15573, 45.9942514], [7.1557447, 45.9944163], [7.1557702, 45.9945802], [7.1558051, 45.9947917], [7.1558332, 45.9949007], [7.1559003, 45.9951225], [7.1559204, 45.9952231], [7.1559311, 45.9953442], [7.1559151, 45.9954579], [7.1558963, 45.9956144], [7.1558923, 45.9958883], [7.1559204, 45.996165], [7.1559982, 45.9966905], [7.1560264, 45.9968489], [7.1560626, 45.9969635], [7.1561176, 45.9970921], [7.1561846, 45.9972225], [7.1562289, 45.9973222], [7.1562409, 45.9973743], [7.1562409, 45.9974116], [7.1562222, 45.9974843], [7.1561524, 45.997665], [7.15608, 45.9979715], [7.1560585, 45.9980982], [7.1560585, 45.9981672], [7.1560612, 45.9982836], [7.1560612, 45.9983526], [7.1560572, 45.998456], [7.1560626, 45.9985305]], "type": "LineString"}, "properties": {"label": "Route de Bavon", "piste_db_id": 10}, "type": "Feature"}], "type": "FeatureCollection"});
 
         
     
-    geo_json_4c621a41f34681acc4f4a27892fa13c3.bindTooltip(
-    function(layer){
-    let div = L.DomUtil.create('div');
-    
-    let handleObject = feature => {
-        if (feature === null) {
-            return '';
-        } else if (typeof(feature)=='object') {
-            return JSON.stringify(feature);
-        } else {
-            return feature;
-        }
-    }
-    let fields = ["name"];
-    let aliases = ["Piste"];
-    let table = '<table>' +
-        String(
-        fields.map(
-        (v,i)=>
-        `<tr>
-            <th>${aliases[i]}</th>
-            
-            <td>${handleObject(layer.feature.properties[v])}</td>
-        </tr>`).join(''))
-    +'</table>';
-    div.innerHTML=table;
-    
-    return div
-    }
-    ,{
+            geo_json_2ae1fbc35146db2cbcc025e9fd503b9e.bindTooltip(
+                `<div>
+                     Route de Bavon
+                 </div>`,
+                {
   "sticky": true,
-  "className": "foliumtooltip",
-});
-                     
+}
+            );
+        
     
-    geo_json_4c621a41f34681acc4f4a27892fa13c3.bindPopup(
-    function(layer){
-    let div = L.DomUtil.create('div');
+            geo_json_2ae1fbc35146db2cbcc025e9fd503b9e.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
     
-    let handleObject = feature => {
-        if (feature === null) {
-            return '';
-        } else if (typeof(feature)=='object') {
-            return JSON.stringify(feature);
-        } else {
-            return feature;
+        function geo_json_95a91dc9e0c85fe252f697aa77ad6530_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#111111", "opacity": 0.85, "weight": 3};
+            }
         }
-    }
-    let fields = ["name", "run_count", "fastest_1", "fastest_2", "fastest_3"];
-    let aliases = ["Piste", "Runs", "Fastest 1", "Fastest 2", "Fastest 3"];
-    let table = '<table>' +
-        String(
-        fields.map(
-        (v,i)=>
-        `<tr>
-            <th>${aliases[i].toLocaleString()}</th>
+
+        function geo_json_95a91dc9e0c85fe252f697aa77ad6530_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_95a91dc9e0c85fe252f697aa77ad6530 = L.geoJson(null, {
+                onEachFeature: geo_json_95a91dc9e0c85fe252f697aa77ad6530_onEachFeature,
             
-            <td>${handleObject(layer.feature.properties[v]).toLocaleString()}</td>
-        </tr>`).join(''))
-    +'</table>';
-    div.innerHTML=table;
+                style: geo_json_95a91dc9e0c85fe252f697aa77ad6530_styler,
+            ...{
+}
+        });
+
+        function geo_json_95a91dc9e0c85fe252f697aa77ad6530_add (data) {
+            geo_json_95a91dc9e0c85fe252f697aa77ad6530
+                .addData(data);
+        }
+            geo_json_95a91dc9e0c85fe252f697aa77ad6530_add({"features": [{"geometry": {"coordinates": [[7.1505378, 45.9890636], [7.150916, 45.989059], [7.151676, 45.989066], [7.1523647, 45.9889844], [7.1532823, 45.9888418], [7.1540167, 45.9886032], [7.1544859, 45.9884652], [7.1552342, 45.988405], [7.1559177, 45.9883642], [7.1564624, 45.9883998], [7.1568273, 45.9884806], [7.1569084, 45.9885487], [7.1569249, 45.9886232], [7.1568269, 45.9887872]], "type": "LineString"}, "properties": {"label": "black piste", "piste_db_id": 4}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
     
-    return div
-    }
-    ,{
-  "className": "foliumpopup",
-});
-                     
+            geo_json_95a91dc9e0c85fe252f697aa77ad6530.bindTooltip(
+                `<div>
+                     black piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
     
-            geo_json_4c621a41f34681acc4f4a27892fa13c3.addTo(map_7a37505ee535ea8ee594876c695f86d5);
+            geo_json_95a91dc9e0c85fe252f697aa77ad6530.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_ad93cd23694ba07ff50971d4d2100c9a_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#111111", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_ad93cd23694ba07ff50971d4d2100c9a_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_ad93cd23694ba07ff50971d4d2100c9a = L.geoJson(null, {
+                onEachFeature: geo_json_ad93cd23694ba07ff50971d4d2100c9a_onEachFeature,
+            
+                style: geo_json_ad93cd23694ba07ff50971d4d2100c9a_styler,
+            ...{
+}
+        });
+
+        function geo_json_ad93cd23694ba07ff50971d4d2100c9a_add (data) {
+            geo_json_ad93cd23694ba07ff50971d4d2100c9a
+                .addData(data);
+        }
+            geo_json_ad93cd23694ba07ff50971d4d2100c9a_add({"features": [{"geometry": {"coordinates": [[7.1566022, 45.9897287], [7.1565851, 45.9898421], [7.1565977, 45.9899484], [7.1566475, 45.9900783], [7.1567559, 45.9901858], [7.156812, 45.990277], [7.1568331, 45.9903805], [7.1568294, 45.9905501], [7.1569025, 45.9907428], [7.1570957, 45.9909602], [7.1572504, 45.9910502], [7.1574905, 45.9911307], [7.1578568, 45.9911861], [7.1587708, 45.9911435], [7.1600719, 45.9912429], [7.1606746, 45.9912689], [7.161162, 45.9913818], [7.1616668, 45.9915597], [7.1618516, 45.9915623], [7.1619376, 45.9915004], [7.1619789, 45.9913753], [7.1621682, 45.9907954]], "type": "LineString"}, "properties": {"label": "black piste", "piste_db_id": 13}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_ad93cd23694ba07ff50971d4d2100c9a.bindTooltip(
+                `<div>
+                     black piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_ad93cd23694ba07ff50971d4d2100c9a.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_b619a57637878e65514fb9f715ef0c46_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_b619a57637878e65514fb9f715ef0c46_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_b619a57637878e65514fb9f715ef0c46 = L.geoJson(null, {
+                onEachFeature: geo_json_b619a57637878e65514fb9f715ef0c46_onEachFeature,
+            
+                style: geo_json_b619a57637878e65514fb9f715ef0c46_styler,
+            ...{
+}
+        });
+
+        function geo_json_b619a57637878e65514fb9f715ef0c46_add (data) {
+            geo_json_b619a57637878e65514fb9f715ef0c46
+                .addData(data);
+        }
+            geo_json_b619a57637878e65514fb9f715ef0c46_add({"features": [{"geometry": {"coordinates": [[7.1506007, 45.9854513], [7.1506019, 45.9855102], [7.1506177, 45.9855418], [7.1507592, 45.9856855], [7.1507986, 45.9859283], [7.1507233, 45.986401], [7.1507083, 45.9865567], [7.1506956, 45.9866453], [7.1506369, 45.9868045], [7.1506185, 45.9869041], [7.1506133, 45.9871809], [7.1505466, 45.9875603], [7.1505443, 45.987744], [7.150562, 45.9880809], [7.1505142, 45.9883659], [7.1505005, 45.9886136], [7.1505259, 45.9886779], [7.1505929, 45.9887657], [7.1506601, 45.9888563], [7.1506647, 45.9889412], [7.1506567, 45.9889806], [7.15062, 45.9890289], [7.1505378, 45.9890636]], "type": "LineString"}, "properties": {"label": "blue piste", "piste_db_id": 8}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_b619a57637878e65514fb9f715ef0c46.bindTooltip(
+                `<div>
+                     blue piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_b619a57637878e65514fb9f715ef0c46.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_ade74967e581ccf656f5bab5eeb46a1c_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#e03030", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_ade74967e581ccf656f5bab5eeb46a1c_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_ade74967e581ccf656f5bab5eeb46a1c = L.geoJson(null, {
+                onEachFeature: geo_json_ade74967e581ccf656f5bab5eeb46a1c_onEachFeature,
+            
+                style: geo_json_ade74967e581ccf656f5bab5eeb46a1c_styler,
+            ...{
+}
+        });
+
+        function geo_json_ade74967e581ccf656f5bab5eeb46a1c_add (data) {
+            geo_json_ade74967e581ccf656f5bab5eeb46a1c
+                .addData(data);
+        }
+            geo_json_ade74967e581ccf656f5bab5eeb46a1c_add({"features": [{"geometry": {"coordinates": [[7.1448859, 45.9760355], [7.1451343, 45.9761514], [7.1481501, 45.9771826], [7.1492979, 45.9775378], [7.1506246, 45.9779911], [7.1527575, 45.9787974], [7.1542119, 45.9793016], [7.15508, 45.979509], [7.1552469, 45.9795571]], "type": "LineString"}, "properties": {"label": "red piste", "piste_db_id": 12}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_ade74967e581ccf656f5bab5eeb46a1c.bindTooltip(
+                `<div>
+                     red piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_ade74967e581ccf656f5bab5eeb46a1c.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_991d7a4f6f6d01c225832380e8d5eb22_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_991d7a4f6f6d01c225832380e8d5eb22_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_991d7a4f6f6d01c225832380e8d5eb22 = L.geoJson(null, {
+                onEachFeature: geo_json_991d7a4f6f6d01c225832380e8d5eb22_onEachFeature,
+            
+                style: geo_json_991d7a4f6f6d01c225832380e8d5eb22_styler,
+            ...{
+}
+        });
+
+        function geo_json_991d7a4f6f6d01c225832380e8d5eb22_add (data) {
+            geo_json_991d7a4f6f6d01c225832380e8d5eb22
+                .addData(data);
+        }
+            geo_json_991d7a4f6f6d01c225832380e8d5eb22_add({"features": [{"geometry": {"coordinates": [[7.1478048, 45.9852878], [7.1484186, 45.9862663], [7.1487765, 45.9874062], [7.1489182, 45.9881396], [7.1489895, 45.9885979], [7.1491914, 45.9889091], [7.1494192, 45.9891043], [7.1496884, 45.9891895], [7.1498326, 45.989172], [7.1499847, 45.9891434], [7.1501262, 45.9890834], [7.1503882, 45.9890619], [7.1505378, 45.9890636]], "type": "LineString"}, "properties": {"label": "blue piste", "piste_db_id": 3}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_991d7a4f6f6d01c225832380e8d5eb22.bindTooltip(
+                `<div>
+                     blue piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_991d7a4f6f6d01c225832380e8d5eb22.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_c07eec766544073e3bfc0b23c9088911_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#e03030", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_c07eec766544073e3bfc0b23c9088911_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_c07eec766544073e3bfc0b23c9088911 = L.geoJson(null, {
+                onEachFeature: geo_json_c07eec766544073e3bfc0b23c9088911_onEachFeature,
+            
+                style: geo_json_c07eec766544073e3bfc0b23c9088911_styler,
+            ...{
+}
+        });
+
+        function geo_json_c07eec766544073e3bfc0b23c9088911_add (data) {
+            geo_json_c07eec766544073e3bfc0b23c9088911
+                .addData(data);
+        }
+            geo_json_c07eec766544073e3bfc0b23c9088911_add({"features": [{"geometry": {"coordinates": [[7.1464608, 45.9821047], [7.1465745, 45.9821168], [7.1466374, 45.9820979], [7.1466613, 45.9820145], [7.1466776, 45.9819278], [7.1468627, 45.9817111], [7.1473141, 45.9814292], [7.1477008, 45.9812234], [7.1481925, 45.9811409], [7.1500164, 45.9812121], [7.1521687, 45.9812381], [7.1532851, 45.9815165]], "type": "LineString"}, "properties": {"label": "La Combette", "piste_db_id": 5}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_c07eec766544073e3bfc0b23c9088911.bindTooltip(
+                `<div>
+                     La Combette
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_c07eec766544073e3bfc0b23c9088911.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_c0859f5a06f09070e73e05bf2b914d2c_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_c0859f5a06f09070e73e05bf2b914d2c_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_c0859f5a06f09070e73e05bf2b914d2c = L.geoJson(null, {
+                onEachFeature: geo_json_c0859f5a06f09070e73e05bf2b914d2c_onEachFeature,
+            
+                style: geo_json_c0859f5a06f09070e73e05bf2b914d2c_styler,
+            ...{
+}
+        });
+
+        function geo_json_c0859f5a06f09070e73e05bf2b914d2c_add (data) {
+            geo_json_c0859f5a06f09070e73e05bf2b914d2c
+                .addData(data);
+        }
+            geo_json_c0859f5a06f09070e73e05bf2b914d2c_add({"features": [{"geometry": {"coordinates": [[7.1506007, 45.9854513], [7.150671, 45.9853805], [7.1507989, 45.9852517], [7.1512082, 45.9848199], [7.1513632, 45.9846961], [7.1515117, 45.9844658], [7.1519974, 45.9835702], [7.1520645, 45.9834465], [7.1523707, 45.9831148], [7.1524717, 45.9829459], [7.1525953, 45.9828341], [7.1527351, 45.9826513], [7.1529098, 45.9824189], [7.1530047, 45.9822726], [7.1531553, 45.9819465], [7.1532851, 45.9815165], [7.1534465, 45.9810923], [7.1534465, 45.9806284], [7.1535349, 45.9802971], [7.1535994, 45.9801543], [7.1536719, 45.9800475], [7.1538611, 45.979832]], "type": "LineString"}, "properties": {"label": "blue piste", "piste_db_id": 11}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_c0859f5a06f09070e73e05bf2b914d2c.bindTooltip(
+                `<div>
+                     blue piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_c0859f5a06f09070e73e05bf2b914d2c.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_d37da75a483a7dd20086629d847c9b5e_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_d37da75a483a7dd20086629d847c9b5e_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_d37da75a483a7dd20086629d847c9b5e = L.geoJson(null, {
+                onEachFeature: geo_json_d37da75a483a7dd20086629d847c9b5e_onEachFeature,
+            
+                style: geo_json_d37da75a483a7dd20086629d847c9b5e_styler,
+            ...{
+}
+        });
+
+        function geo_json_d37da75a483a7dd20086629d847c9b5e_add (data) {
+            geo_json_d37da75a483a7dd20086629d847c9b5e
+                .addData(data);
+        }
+            geo_json_d37da75a483a7dd20086629d847c9b5e_add({"features": [{"geometry": {"coordinates": [[7.1448773, 45.9758295], [7.1448591, 45.9759411], [7.1448859, 45.9760355], [7.1450122, 45.9762979], [7.1451489, 45.9764775], [7.1453183, 45.9766306], [7.1454496, 45.9767351], [7.1455521, 45.976934], [7.1455744, 45.9770463], [7.1455468, 45.9772461], [7.1454645, 45.977459], [7.1454673, 45.9776246], [7.145671, 45.9784208], [7.1458208, 45.9790561], [7.1458031, 45.9795686], [7.1456617, 45.9802136], [7.1457118, 45.9803481], [7.1458212, 45.980565], [7.146008, 45.9813534], [7.1464608, 45.9821047], [7.1466185, 45.9824546], [7.1474824, 45.9842949], [7.1477394, 45.9849956], [7.1478048, 45.9852878], [7.1480235, 45.9869653], [7.1480499, 45.9879256], [7.1481182, 45.9882368], [7.148182, 45.9884043], [7.1483214, 45.9885814], [7.1487241, 45.9888934], [7.149254, 45.9892326], [7.1493801, 45.9892702], [7.149746, 45.9893791], [7.1502922, 45.9894125], [7.1504344, 45.9892825], [7.1505378, 45.9890636]], "type": "LineString"}, "properties": {"label": "blue piste", "piste_db_id": 2}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_d37da75a483a7dd20086629d847c9b5e.bindTooltip(
+                `<div>
+                     blue piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_d37da75a483a7dd20086629d847c9b5e.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_6093116dc964a14765204c42ccd6ea72_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#e03030", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_6093116dc964a14765204c42ccd6ea72_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_6093116dc964a14765204c42ccd6ea72 = L.geoJson(null, {
+                onEachFeature: geo_json_6093116dc964a14765204c42ccd6ea72_onEachFeature,
+            
+                style: geo_json_6093116dc964a14765204c42ccd6ea72_styler,
+            ...{
+}
+        });
+
+        function geo_json_6093116dc964a14765204c42ccd6ea72_add (data) {
+            geo_json_6093116dc964a14765204c42ccd6ea72
+                .addData(data);
+        }
+            geo_json_6093116dc964a14765204c42ccd6ea72_add({"features": [{"geometry": {"coordinates": [[7.145671, 45.9784208], [7.1459038, 45.9784805], [7.146959, 45.9785994], [7.1478865, 45.9787622], [7.1495967, 45.9791806], [7.1501538, 45.9793286], [7.1519467, 45.9796891], [7.1532038, 45.9798977], [7.1536127, 45.9799049], [7.1538611, 45.979832]], "type": "LineString"}, "properties": {"label": "red piste", "piste_db_id": 9}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_6093116dc964a14765204c42ccd6ea72.bindTooltip(
+                `<div>
+                     red piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_6093116dc964a14765204c42ccd6ea72.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_67076fed2f6c7a37b200aa2ce51c6f54_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#e03030", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_67076fed2f6c7a37b200aa2ce51c6f54_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_67076fed2f6c7a37b200aa2ce51c6f54 = L.geoJson(null, {
+                onEachFeature: geo_json_67076fed2f6c7a37b200aa2ce51c6f54_onEachFeature,
+            
+                style: geo_json_67076fed2f6c7a37b200aa2ce51c6f54_styler,
+            ...{
+}
+        });
+
+        function geo_json_67076fed2f6c7a37b200aa2ce51c6f54_add (data) {
+            geo_json_67076fed2f6c7a37b200aa2ce51c6f54
+                .addData(data);
+        }
+            geo_json_67076fed2f6c7a37b200aa2ce51c6f54_add({"features": [{"geometry": {"coordinates": [[7.1449927, 45.975687], [7.1469518, 45.9760253], [7.1501175, 45.9772352], [7.1520679, 45.9776777], [7.1532308, 45.9779078], [7.1542063, 45.97824], [7.1546129, 45.9784718], [7.1553902, 45.9789147], [7.1555801, 45.979188], [7.155548, 45.9793561]], "type": "LineString"}, "properties": {"label": "red piste", "piste_db_id": 7}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_67076fed2f6c7a37b200aa2ce51c6f54.bindTooltip(
+                `<div>
+                     red piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_67076fed2f6c7a37b200aa2ce51c6f54.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_f950932b8045cac27c7df592da321e25_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#e03030", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_f950932b8045cac27c7df592da321e25_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_f950932b8045cac27c7df592da321e25 = L.geoJson(null, {
+                onEachFeature: geo_json_f950932b8045cac27c7df592da321e25_onEachFeature,
+            
+                style: geo_json_f950932b8045cac27c7df592da321e25_styler,
+            ...{
+}
+        });
+
+        function geo_json_f950932b8045cac27c7df592da321e25_add (data) {
+            geo_json_f950932b8045cac27c7df592da321e25
+                .addData(data);
+        }
+            geo_json_f950932b8045cac27c7df592da321e25_add({"features": [{"geometry": {"coordinates": [[7.1448773, 45.9758295], [7.1449927, 45.975687], [7.1452663, 45.9754504], [7.1455846, 45.9751342], [7.1458478, 45.9747308], [7.1460754, 45.9738796], [7.1461702, 45.9736572], [7.1463953, 45.9736179], [7.1471386, 45.9737053], [7.147698, 45.9738386], [7.148233, 45.9740814], [7.1488096, 45.9745968], [7.1491589, 45.9748014], [7.1507172, 45.9751379], [7.1509446, 45.9752289], [7.1515749, 45.975822], [7.1522803, 45.9763198], [7.1527924, 45.9767941], [7.1529981, 45.9771696], [7.1531878, 45.9773135], [7.1536079, 45.9774116], [7.1538379, 45.9775133], [7.1542942, 45.9777379], [7.1545785, 45.9777989], [7.1548682, 45.9778384], [7.1553324, 45.9779409], [7.1556719, 45.9781956], [7.1557339, 45.9783687], [7.1557235, 45.978626], [7.1556127, 45.9789894], [7.1555801, 45.979188], [7.155548, 45.9793561]], "type": "LineString"}, "properties": {"label": "red piste", "piste_db_id": 1}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_f950932b8045cac27c7df592da321e25.bindTooltip(
+                `<div>
+                     red piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_f950932b8045cac27c7df592da321e25.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_6af2a4b6cd31a2554ead3e01f752f597_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_6af2a4b6cd31a2554ead3e01f752f597_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_6af2a4b6cd31a2554ead3e01f752f597 = L.geoJson(null, {
+                onEachFeature: geo_json_6af2a4b6cd31a2554ead3e01f752f597_onEachFeature,
+            
+                style: geo_json_6af2a4b6cd31a2554ead3e01f752f597_styler,
+            ...{
+}
+        });
+
+        function geo_json_6af2a4b6cd31a2554ead3e01f752f597_add (data) {
+            geo_json_6af2a4b6cd31a2554ead3e01f752f597
+                .addData(data);
+        }
+            geo_json_6af2a4b6cd31a2554ead3e01f752f597_add({"features": [{"geometry": {"coordinates": [[7.1482007, 45.9895913], [7.1483457, 45.9895368], [7.1490452, 45.9895407], [7.1494228, 45.9895993], [7.1496952, 45.989696], [7.149912, 45.989773], [7.1501327, 45.9896143], [7.1502922, 45.9894125]], "type": "LineString"}, "properties": {"label": "blue piste", "piste_db_id": 20}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_6af2a4b6cd31a2554ead3e01f752f597.bindTooltip(
+                `<div>
+                     blue piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_6af2a4b6cd31a2554ead3e01f752f597.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_a42867f33568d43766d73ac8f5a7268b_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#e03030", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_a42867f33568d43766d73ac8f5a7268b_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_a42867f33568d43766d73ac8f5a7268b = L.geoJson(null, {
+                onEachFeature: geo_json_a42867f33568d43766d73ac8f5a7268b_onEachFeature,
+            
+                style: geo_json_a42867f33568d43766d73ac8f5a7268b_styler,
+            ...{
+}
+        });
+
+        function geo_json_a42867f33568d43766d73ac8f5a7268b_add (data) {
+            geo_json_a42867f33568d43766d73ac8f5a7268b
+                .addData(data);
+        }
+            geo_json_a42867f33568d43766d73ac8f5a7268b_add({"features": [{"geometry": {"coordinates": [[7.1539082, 45.9867907], [7.1540296, 45.9868768], [7.1542029, 45.9871294], [7.1543812, 45.9872842], [7.1545281, 45.9873645], [7.1551553, 45.9876114], [7.1560843, 45.9880175], [7.1566273, 45.9882688], [7.1568273, 45.9884806]], "type": "LineString"}, "properties": {"label": "red piste", "piste_db_id": 21}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_a42867f33568d43766d73ac8f5a7268b.bindTooltip(
+                `<div>
+                     red piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_a42867f33568d43766d73ac8f5a7268b.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_d9d0f8e2c289a12ce9edc9d81bdbadba_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#111111", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_d9d0f8e2c289a12ce9edc9d81bdbadba_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_d9d0f8e2c289a12ce9edc9d81bdbadba = L.geoJson(null, {
+                onEachFeature: geo_json_d9d0f8e2c289a12ce9edc9d81bdbadba_onEachFeature,
+            
+                style: geo_json_d9d0f8e2c289a12ce9edc9d81bdbadba_styler,
+            ...{
+}
+        });
+
+        function geo_json_d9d0f8e2c289a12ce9edc9d81bdbadba_add (data) {
+            geo_json_d9d0f8e2c289a12ce9edc9d81bdbadba
+                .addData(data);
+        }
+            geo_json_d9d0f8e2c289a12ce9edc9d81bdbadba_add({"features": [{"geometry": {"coordinates": [[7.1568269, 45.9887872], [7.156746, 45.9889434], [7.156598, 45.9891554], [7.1565015, 45.989286], [7.1564678, 45.9893566], [7.1564789, 45.9894457], [7.1565435, 45.9895511], [7.1565837, 45.9896594], [7.1566022, 45.9897287], [7.1566427, 45.9897829], [7.1571807, 45.9900025], [7.1576464, 45.9901544], [7.1581734, 45.9902327], [7.1594692, 45.9904383], [7.1600591, 45.9905077], [7.1605057, 45.9905586], [7.1609537, 45.9905433], [7.1613591, 45.9904948], [7.1615634, 45.9905307], [7.1617912, 45.9906006], [7.1620818, 45.9907281]], "type": "LineString"}, "properties": {"label": "black piste", "piste_db_id": 6}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_d9d0f8e2c289a12ce9edc9d81bdbadba.bindTooltip(
+                `<div>
+                     black piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_d9d0f8e2c289a12ce9edc9d81bdbadba.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_75b2e675b2b9307896d15a4640826b3a_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_75b2e675b2b9307896d15a4640826b3a_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_75b2e675b2b9307896d15a4640826b3a = L.geoJson(null, {
+                onEachFeature: geo_json_75b2e675b2b9307896d15a4640826b3a_onEachFeature,
+            
+                style: geo_json_75b2e675b2b9307896d15a4640826b3a_styler,
+            ...{
+}
+        });
+
+        function geo_json_75b2e675b2b9307896d15a4640826b3a_add (data) {
+            geo_json_75b2e675b2b9307896d15a4640826b3a
+                .addData(data);
+        }
+            geo_json_75b2e675b2b9307896d15a4640826b3a_add({"features": [{"geometry": {"coordinates": [[7.1494319, 45.9869752], [7.149565, 45.9868619], [7.1498119, 45.9866916], [7.1499629, 45.986608], [7.1501116, 45.9864841], [7.15026, 45.9863039], [7.1504003, 45.9861737], [7.1506127, 45.9858634], [7.1506741, 45.9857442], [7.1505744, 45.9855307], [7.1506007, 45.9854513]], "type": "LineString"}, "properties": {"label": "blue piste", "piste_db_id": 14}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_75b2e675b2b9307896d15a4640826b3a.bindTooltip(
+                `<div>
+                     blue piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_75b2e675b2b9307896d15a4640826b3a.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_a10d647eb4e7bfe0b8f4ceff86a65e5f_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_a10d647eb4e7bfe0b8f4ceff86a65e5f_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_a10d647eb4e7bfe0b8f4ceff86a65e5f = L.geoJson(null, {
+                onEachFeature: geo_json_a10d647eb4e7bfe0b8f4ceff86a65e5f_onEachFeature,
+            
+                style: geo_json_a10d647eb4e7bfe0b8f4ceff86a65e5f_styler,
+            ...{
+}
+        });
+
+        function geo_json_a10d647eb4e7bfe0b8f4ceff86a65e5f_add (data) {
+            geo_json_a10d647eb4e7bfe0b8f4ceff86a65e5f
+                .addData(data);
+        }
+            geo_json_a10d647eb4e7bfe0b8f4ceff86a65e5f_add({"features": [{"geometry": {"coordinates": [[7.1538611, 45.979832], [7.1541379, 45.9796872], [7.1544486, 45.97958], [7.154872, 45.9795549], [7.155041, 45.9795452], [7.1552469, 45.9795571], [7.1553858, 45.9795384], [7.1554649, 45.9795238], [7.1555563, 45.9794652], [7.1555758, 45.9794282], [7.1555806, 45.9793836], [7.155548, 45.9793561], [7.1555013, 45.9793591], [7.1554415, 45.9793893], [7.1553923, 45.9794523]], "type": "LineString"}, "properties": {"label": "blue piste", "piste_db_id": 22}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_a10d647eb4e7bfe0b8f4ceff86a65e5f.bindTooltip(
+                `<div>
+                     blue piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_a10d647eb4e7bfe0b8f4ceff86a65e5f.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_60c9e7a10f36d1c844ebefb7710da696_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_60c9e7a10f36d1c844ebefb7710da696_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_60c9e7a10f36d1c844ebefb7710da696 = L.geoJson(null, {
+                onEachFeature: geo_json_60c9e7a10f36d1c844ebefb7710da696_onEachFeature,
+            
+                style: geo_json_60c9e7a10f36d1c844ebefb7710da696_styler,
+            ...{
+}
+        });
+
+        function geo_json_60c9e7a10f36d1c844ebefb7710da696_add (data) {
+            geo_json_60c9e7a10f36d1c844ebefb7710da696
+                .addData(data);
+        }
+            geo_json_60c9e7a10f36d1c844ebefb7710da696_add({"features": [{"geometry": {"coordinates": [[7.1560626, 45.9985305], [7.15608, 45.9986209], [7.1561095, 45.9987234], [7.1561538, 45.9988678], [7.1562034, 45.9989926], [7.1562691, 45.9991677], [7.1562999, 45.9992767], [7.156312, 45.9993317], [7.156304, 45.9993634], [7.1562946, 45.9993988], [7.1562557, 45.9994444], [7.1562101, 45.9994901], [7.1561444, 45.9995432], [7.1560599, 45.9996093], [7.1559875, 45.9996783], [7.1559338, 45.9997426], [7.1559057, 45.9997826], [7.1558882, 45.9998283], [7.1558775, 45.9999019], [7.1558695, 45.9999829], [7.1558641, 46.000091], [7.1558614, 46.0001348], [7.155852, 46.0001702], [7.1558292, 46.000214], [7.1558145, 46.0002382], [7.1557836, 46.0002652], [7.1557219, 46.0003043], [7.1556737, 46.000336], [7.1556374, 46.000376], [7.1555945, 46.0004282], [7.155561, 46.0004972], [7.1555127, 46.000568], [7.1554913, 46.0005987], [7.1554671, 46.0006304], [7.1554229, 46.0006593], [7.155333, 46.0006928], [7.1552485, 46.0007329], [7.1552029, 46.0007645], [7.1551372, 46.0008269], [7.1550232, 46.0009117], [7.1549039, 46.0009965], [7.1547899, 46.001071], [7.1546973, 46.0011204], [7.1545485, 46.0011856], [7.1544304, 46.0012518], [7.1543419, 46.0013151], [7.1542963, 46.0013645], [7.1542668, 46.0014343], [7.1542574, 46.0014977], [7.1542574, 46.0015582], [7.1542601, 46.0016477], [7.1542615, 46.0017259], [7.1542534, 46.0017874], [7.1542427, 46.0018303], [7.1542226, 46.001874], [7.1541944, 46.0019178], [7.1541649, 46.0019514], [7.1541314, 46.0019784], [7.1540918, 46.0019998], [7.154057, 46.0020273], [7.1540315, 46.0020515], [7.1540181, 46.0020767], [7.1540407, 46.0021016], [7.154059, 46.0021065], [7.1540734, 46.0021055]], "type": "LineString"}, "properties": {"label": "Route de Bavon", "piste_db_id": 18}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_60c9e7a10f36d1c844ebefb7710da696.bindTooltip(
+                `<div>
+                     Route de Bavon
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_60c9e7a10f36d1c844ebefb7710da696.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_ca9d43c9a758d94618c4f29db4907e21_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_ca9d43c9a758d94618c4f29db4907e21_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_ca9d43c9a758d94618c4f29db4907e21 = L.geoJson(null, {
+                onEachFeature: geo_json_ca9d43c9a758d94618c4f29db4907e21_onEachFeature,
+            
+                style: geo_json_ca9d43c9a758d94618c4f29db4907e21_styler,
+            ...{
+}
+        });
+
+        function geo_json_ca9d43c9a758d94618c4f29db4907e21_add (data) {
+            geo_json_ca9d43c9a758d94618c4f29db4907e21
+                .addData(data);
+        }
+            geo_json_ca9d43c9a758d94618c4f29db4907e21_add({"features": [{"geometry": {"coordinates": [[7.1540734, 46.0021055], [7.1540999, 46.0020995], [7.1541488, 46.0020622], [7.1542165, 46.0020082], [7.1542541, 46.0019677], [7.1543051, 46.001916], [7.1543359, 46.001882], [7.154352, 46.0018577], [7.1543614, 46.001834], [7.1543661, 46.0018191], [7.1543755, 46.0017851], [7.1543849, 46.0017511], [7.1543909, 46.0017236], [7.1543969, 46.0017054], [7.1544056, 46.001684], [7.154419, 46.0016472], [7.1544372, 46.0016127], [7.154462, 46.0015815], [7.1544767, 46.0015596], [7.1544861, 46.0015415], [7.1545169, 46.0014977], [7.1545498, 46.0014665], [7.1545766, 46.0014427], [7.1546081, 46.0014194], [7.1546363, 46.0014022], [7.1546953, 46.001378], [7.1547436, 46.001364], [7.1547838, 46.0013538], [7.154816, 46.0013463], [7.1548489, 46.0013384], [7.1548777, 46.0013328], [7.1549065, 46.0013277], [7.154934, 46.0013226], [7.1549575, 46.0013179], [7.1549803, 46.0013142], [7.1550594, 46.001309], [7.15515, 46.0012993], [7.1552244, 46.0012899], [7.1552626, 46.0012825], [7.1553089, 46.0012718], [7.1554276, 46.0012471], [7.1555261, 46.0012243], [7.1556066, 46.0012066], [7.1557313, 46.0011768], [7.1558091, 46.0011591], [7.1558587, 46.0011428], [7.155901, 46.0011274], [7.1559352, 46.0011088], [7.1559586, 46.0010938], [7.1559868, 46.0010729], [7.1560163, 46.0010505], [7.1560438, 46.00103], [7.1560686, 46.0010137], [7.1560894, 46.0010002], [7.1561571, 46.0009592], [7.1562235, 46.0009327], [7.1562946, 46.0009038], [7.1563811, 46.0008759], [7.1564548, 46.0008563], [7.1565729, 46.0008279], [7.1566339, 46.0008102], [7.1566889, 46.0007855], [7.1567318, 46.0007599], [7.1567727, 46.0007319], [7.1567982, 46.0007026], [7.1568136, 46.0006839], [7.1568552, 46.0006234], [7.156876, 46.0005791], [7.1568967, 46.0005344], [7.1569068, 46.0004962], [7.156935, 46.0004292], [7.1569732, 46.0003621], [7.1570101, 46.000316], [7.1570671, 46.0002535], [7.157106, 46.0002163], [7.1571355, 46.0001846], [7.1571811, 46.0001371], [7.1572562, 46.0000635], [7.157287, 46.0000244], [7.1573212, 45.9999578], [7.1573487, 45.9999084], [7.1573581, 45.9998683], [7.1573748, 45.9998245], [7.1573862, 45.9997826], [7.157409, 45.9997002], [7.1574285, 45.9996284], [7.1574379, 45.9995781], [7.157454, 45.9995069], [7.1574681, 45.9994384], [7.1574922, 45.9993401], [7.1575297, 45.9992404], [7.157582, 45.9991333], [7.1576464, 45.9990355], [7.1577054, 45.9989516], [7.1577738, 45.9988529], [7.1578623, 45.9987373], [7.1579294, 45.9986414], [7.1580152, 45.9985501], [7.1581212, 45.9984578], [7.1581748, 45.9984079]], "type": "LineString"}, "properties": {"label": "Route de Bavon", "piste_db_id": 17}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_ca9d43c9a758d94618c4f29db4907e21.bindTooltip(
+                `<div>
+                     Route de Bavon
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_ca9d43c9a758d94618c4f29db4907e21.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_203b45d0c75e465bdbbd5e0086c50082_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_203b45d0c75e465bdbbd5e0086c50082_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_203b45d0c75e465bdbbd5e0086c50082 = L.geoJson(null, {
+                onEachFeature: geo_json_203b45d0c75e465bdbbd5e0086c50082_onEachFeature,
+            
+                style: geo_json_203b45d0c75e465bdbbd5e0086c50082_styler,
+            ...{
+}
+        });
+
+        function geo_json_203b45d0c75e465bdbbd5e0086c50082_add (data) {
+            geo_json_203b45d0c75e465bdbbd5e0086c50082
+                .addData(data);
+        }
+            geo_json_203b45d0c75e465bdbbd5e0086c50082_add({"features": [{"geometry": {"coordinates": [[7.1616018, 45.9945165], [7.1616368, 45.9944262], [7.1616744, 45.9943599], [7.1616846, 45.9939987], [7.1615599, 45.9935855], [7.1615564, 45.9934624], [7.1615964, 45.9933343]], "type": "LineString"}, "properties": {"label": "blue piste", "piste_db_id": 15}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_203b45d0c75e465bdbbd5e0086c50082.bindTooltip(
+                `<div>
+                     blue piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_203b45d0c75e465bdbbd5e0086c50082.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_a076f92f1250d48cfeea20cd1d4df374_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_a076f92f1250d48cfeea20cd1d4df374_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_a076f92f1250d48cfeea20cd1d4df374 = L.geoJson(null, {
+                onEachFeature: geo_json_a076f92f1250d48cfeea20cd1d4df374_onEachFeature,
+            
+                style: geo_json_a076f92f1250d48cfeea20cd1d4df374_styler,
+            ...{
+}
+        });
+
+        function geo_json_a076f92f1250d48cfeea20cd1d4df374_add (data) {
+            geo_json_a076f92f1250d48cfeea20cd1d4df374
+                .addData(data);
+        }
+            geo_json_a076f92f1250d48cfeea20cd1d4df374_add({"features": [{"geometry": {"coordinates": [[7.1581919, 45.9983425], [7.1582231, 45.9983591], [7.1582419, 45.99836], [7.15827, 45.9983535], [7.1582915, 45.9983423], [7.1583331, 45.9982995], [7.1584256, 45.9981784], [7.158494, 45.9980815], [7.158557, 45.9979725], [7.1585973, 45.9978746], [7.1586898, 45.9977191], [7.1587555, 45.9975942], [7.1588078, 45.9974759], [7.1588467, 45.9974107], [7.158895, 45.9973511], [7.1589701, 45.9972858], [7.1590854, 45.9972066], [7.1591686, 45.9971703], [7.1592531, 45.9971372], [7.159292, 45.9971219], [7.1594328, 45.9970613], [7.1596272, 45.9969514], [7.1597198, 45.9968964], [7.1598499, 45.9967949], [7.1599625, 45.9966924], [7.1601047, 45.9965191], [7.1601637, 45.9964511], [7.1602468, 45.9963588], [7.1602857, 45.9963095], [7.1603166, 45.9962573], [7.160334, 45.9961995], [7.1603501, 45.9961175], [7.1603581, 45.9960681], [7.160389, 45.9960095], [7.1604386, 45.9959582], [7.1605164, 45.9958781], [7.1605553, 45.9958278], [7.1605875, 45.9957719], [7.1606143, 45.9956834], [7.1606545, 45.9955772], [7.1606699, 45.9955417], [7.1606941, 45.9955119], [7.1607162, 45.9954863], [7.1607464, 45.9954616], [7.1607678, 45.9954449], [7.1608014, 45.9954234], [7.1608329, 45.9954048], [7.160859, 45.9953927], [7.1609013, 45.9953754], [7.1609388, 45.9953615], [7.1609831, 45.995347], [7.1610173, 45.9953312], [7.1610387, 45.9953205], [7.1610582, 45.9953093], [7.1610843, 45.9952939], [7.1611024, 45.9952827], [7.161146, 45.9952445], [7.1611749, 45.995211], [7.1611997, 45.9951854], [7.1612178, 45.9951705], [7.1612822, 45.9950955], [7.1613264, 45.9950405], [7.1613505, 45.9950009], [7.1613646, 45.994972], [7.1613707, 45.9949375], [7.1613754, 45.9949166], [7.1613733, 45.9948989], [7.1613754, 45.9948765], [7.1613834, 45.9948509], [7.1613915, 45.9948225], [7.1614297, 45.9947442], [7.16148, 45.9946729], [7.1615504, 45.9945938], [7.1616018, 45.9945165]], "type": "LineString"}, "properties": {"label": "Route de Bavon", "piste_db_id": 16}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_a076f92f1250d48cfeea20cd1d4df374.bindTooltip(
+                `<div>
+                     Route de Bavon
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_a076f92f1250d48cfeea20cd1d4df374.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_5a014a18511ad07fad59eb83ea20859a_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#e03030", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_5a014a18511ad07fad59eb83ea20859a_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_5a014a18511ad07fad59eb83ea20859a = L.geoJson(null, {
+                onEachFeature: geo_json_5a014a18511ad07fad59eb83ea20859a_onEachFeature,
+            
+                style: geo_json_5a014a18511ad07fad59eb83ea20859a_styler,
+            ...{
+}
+        });
+
+        function geo_json_5a014a18511ad07fad59eb83ea20859a_add (data) {
+            geo_json_5a014a18511ad07fad59eb83ea20859a
+                .addData(data);
+        }
+            geo_json_5a014a18511ad07fad59eb83ea20859a_add({"features": [{"geometry": {"coordinates": [[7.150671, 45.9853805], [7.1510925, 45.9852076], [7.1513512, 45.9850853], [7.1517195, 45.9850877], [7.1522234, 45.9852041], [7.1527875, 45.9854008], [7.1532802, 45.9855712], [7.1538465, 45.9857757], [7.1540695, 45.9858687], [7.154847, 45.986297], [7.1552826, 45.9865884], [7.1555827, 45.9869673], [7.1558795, 45.9871983], [7.1563603, 45.9874359], [7.1565862, 45.9876646], [7.1566314, 45.9878619], [7.1566314, 45.9880099], [7.1566273, 45.9882688]], "type": "LineString"}, "properties": {"label": "red piste", "piste_db_id": 19}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_5a014a18511ad07fad59eb83ea20859a.bindTooltip(
+                `<div>
+                     red piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_5a014a18511ad07fad59eb83ea20859a.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
+        
+    
+        function geo_json_3b79021843a0c47b889c175e75ae648b_styler(feature) {
+            switch(feature.properties.piste_db_id) {
+                default:
+                    return {"color": "#4287f5", "opacity": 0.85, "weight": 3};
+            }
+        }
+
+        function geo_json_3b79021843a0c47b889c175e75ae648b_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_3b79021843a0c47b889c175e75ae648b = L.geoJson(null, {
+                onEachFeature: geo_json_3b79021843a0c47b889c175e75ae648b_onEachFeature,
+            
+                style: geo_json_3b79021843a0c47b889c175e75ae648b_styler,
+            ...{
+}
+        });
+
+        function geo_json_3b79021843a0c47b889c175e75ae648b_add (data) {
+            geo_json_3b79021843a0c47b889c175e75ae648b
+                .addData(data);
+        }
+            geo_json_3b79021843a0c47b889c175e75ae648b_add({"features": [{"geometry": {"coordinates": [[7.1493801, 45.9892702], [7.1496952, 45.989696]], "type": "LineString"}, "properties": {"label": "blue piste", "piste_db_id": 23}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+            geo_json_3b79021843a0c47b889c175e75ae648b.bindTooltip(
+                `<div>
+                     blue piste
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            geo_json_3b79021843a0c47b889c175e75ae648b.addTo(map_0c26fcad5079ddf5af82eb1174cb373b);
         
 </script>
 </html>

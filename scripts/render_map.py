@@ -267,6 +267,12 @@ def _build_mobile_sheet() -> str:
                 border-bottom:1px solid {BORDER};padding-bottom:6px">
       &#127942; Leaderboard
     </div>
+    <label style="display:flex;align-items:center;gap:6px;font-size:11px;
+                  color:{TEXT_DIM};cursor:pointer;user-select:none;margin-bottom:10px">
+      <input type="checkbox" id="pw-winner-toggle-m" checked
+        onchange="pwToggleWinners(this.checked)">
+      Show winner colours
+    </label>
     <div style="display:flex;gap:4px;margin-bottom:10px">
       <button id="pw-mlb-days" onclick="pwMobileShowTab('days')"
         style="{lb_active}">&#128197; Days</button>
@@ -322,15 +328,24 @@ document.addEventListener('DOMContentLoaded', function() {{
   L.control.zoom({{ position: 'bottomright' }}).addTo(MAP);
   var DATA = window.POWPAL_DATA;
   var pwLayers = {{}};
+  var pwOutlineLayers = {{}};
   var pwMinDate = '', pwMaxDate = '';
+  var pwShowWinners = true;
+  var pwCurrentFrom = '', pwCurrentTo = '';
 
-  // Build a registry of piste_db_id -> Leaflet layer from Folium's GeoJSON layers
+  // Build registries of piste_db_id -> Leaflet layer from Folium's GeoJSON layers.
+  // Outline layers (pw_outline=true) are kept separate — they carry no popup.
   MAP.eachLayer(function(layer) {{
     if (layer.feature && layer.feature.properties) {{
-      var pid = layer.feature.properties.piste_db_id;
+      var props = layer.feature.properties;
+      var pid = props.piste_db_id;
       if (pid != null) {{
-        pwLayers[pid] = layer;
-        layer.bindPopup('', {{maxWidth: 280}});
+        if (props.pw_outline) {{
+          pwOutlineLayers[pid] = layer;
+        }} else {{
+          pwLayers[pid] = layer;
+          layer.bindPopup('', {{maxWidth: 280}});
+        }}
       }}
     }}
   }});
@@ -343,6 +358,8 @@ document.addEventListener('DOMContentLoaded', function() {{
 
   // --- Main filter entry point ---
   function pwFilter(from, to) {{
+    pwCurrentFrom = from;
+    pwCurrentTo = to;
     var runs = DATA.runs.filter(function(r) {{
       return r.run_date >= from && r.run_date <= to;
     }});
@@ -390,6 +407,20 @@ document.addEventListener('DOMContentLoaded', function() {{
         html += '<i style="color:#aaa;font-size:12px">No runs in this period</i>';
       }}
       layer.setPopupContent(html);
+    }});
+
+    // Drive winner overlay colour on each piste
+    Object.keys(pwOutlineLayers).forEach(function(pid) {{
+      var outlineLayer = pwOutlineLayers[pid];
+      if (pwShowWinners && best[pid]) {{
+        var winner = Object.keys(best[pid])
+          .map(function(uid) {{ return {{uid: uid, t: best[pid][uid]}}; }})
+          .sort(function(a, b) {{ return a.t - b.t; }})[0];
+        var winnerColour = DATA.users[winner.uid].colour;
+        outlineLayer.setStyle({{color: winnerColour, weight: 7, opacity: 1.0}});
+      }} else {{
+        outlineLayer.setStyle({{color: 'transparent', opacity: 0}});
+      }}
     }});
   }}
 
@@ -543,6 +574,18 @@ document.addEventListener('DOMContentLoaded', function() {{
   }}
 
   window.pwFilter = pwFilter;
+
+  window.pwToggleWinners = function(show) {{
+    pwShowWinners = show;
+    // Keep both checkboxes in sync
+    var cb  = document.getElementById('pw-winner-toggle');
+    var cbm = document.getElementById('pw-winner-toggle-m');
+    if (cb)  cb.checked  = show;
+    if (cbm) cbm.checked = show;
+    // Re-run current filter so outline styles update immediately
+    if (pwCurrentFrom) pwFilter(pwCurrentFrom, pwCurrentTo);
+  }};
+
   window.pwResetDates = function() {{
     if (pwSlider) pwSlider.set([0, pwTotalDays]);
     // mobile slider syncs automatically via the flag below
@@ -702,6 +745,12 @@ def _build_meta_panel() -> str:
               border-bottom:1px solid {BORDER};padding-bottom:6px">
     &#127942; Leaderboard
   </div>
+  <label style="display:flex;align-items:center;gap:6px;font-size:11px;
+                color:{TEXT_DIM};cursor:pointer;user-select:none;margin-bottom:10px">
+    <input type="checkbox" id="pw-winner-toggle" checked
+      onchange="pwToggleWinners(this.checked)">
+    Show winner colours
+  </label>
   <div style="display:flex;gap:4px;margin-bottom:10px">
     <button id="pw-tab-days" onclick="pwShowTab('days')"
       style="{active_style}">&#128197; Days</button>
@@ -761,7 +810,7 @@ def build_map(db_path: Path, piste_path: Path) -> folium.Map:
         osm_id = str(row.get("id", ""))
         db_piste_id = osm_to_db.get(osm_id)
 
-        # Wrap as a GeoJSON Feature so JS can read piste_db_id from layer.feature.properties
+        # Main line — difficulty colour.
         feature = {
             "type": "Feature",
             "geometry": row.geometry.__geo_interface__,
@@ -783,6 +832,19 @@ def build_map(db_path: Path, piste_path: Path) -> folium.Map:
                 folium.Popup(f"<b>{label}</b><br><i>No runs yet</i>", max_width=280)
             )
         gj.add_to(m)
+
+        # Winner overlay — rendered after (on top), starts invisible.
+        # JS drives its colour/opacity to show the winner's colour as a full overlay.
+        if db_piste_id is not None:
+            outline_feature = {
+                "type": "Feature",
+                "geometry": row.geometry.__geo_interface__,
+                "properties": {"piste_db_id": db_piste_id, "pw_outline": True},
+            }
+            folium.GeoJson(
+                outline_feature,
+                style_function=lambda _: {"color": "transparent", "weight": 3, "opacity": 0},
+            ).add_to(m)
 
     title_html = f"""
     <div id="pw-title" style="

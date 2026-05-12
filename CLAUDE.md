@@ -305,3 +305,54 @@ git add data/processed/index.html && git commit -m "update leaderboard map" && g
 - [ ] Mapbox vs MapLibre when moving to Next.js frontend (MapLibre = free/open, Mapbox = billed)
 - [ ] SQLite → Postgres migration: use SQLAlchemy from day one to make this painless later
 - [ ] How to handle off-piste runs — store but exclude from leaderboard, or ignore entirely?
+
+---
+
+## gstack
+
+Use the `/browse` skill from gstack for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
+
+### Available skills
+
+| Skill | What it does |
+|---|---|
+| `/office-hours` | Product interrogation — clarify what to build and why |
+| `/plan-ceo-review` | Strategic challenge on a feature idea |
+| `/plan-eng-review` | Architecture and implementation review |
+| `/plan-design-review` | Design critique before building |
+| `/plan-devex-review` | Developer experience review |
+| `/plan-tune` | Tune an existing plan |
+| `/design-consultation` | Design guidance and feedback |
+| `/design-shotgun` | Generate multiple design directions |
+| `/design-html` | Build and iterate on HTML/CSS UI |
+| `/design-review` | Review visual design quality |
+| `/review` | Code review on the current branch |
+| `/ship` | End-to-end: review → QA → PR |
+| `/land-and-deploy` | Land a PR and deploy |
+| `/canary` | Canary deploy and monitor |
+| `/autoplan` | Auto-generate an implementation plan |
+| `/investigate` | Root cause debugging |
+| `/qa` | QA test a URL with a real browser |
+| `/qa-only` | QA only (skip review) |
+| `/browse` | Headless browser — navigate, screenshot, interact |
+| `/scrape` | Scrape and extract content from a page |
+| `/make-pdf` | Generate a PDF from a URL or HTML |
+| `/benchmark` | Benchmark model or code performance |
+| `/benchmark-models` | Compare Claude model outputs |
+| `/retro` | Engineering retrospective |
+| `/learn` | Learn a codebase or concept |
+| `/document-release` | Generate release notes |
+| `/codex` | Run an OpenAI Codex task |
+| `/cso` | Security audit (OWASP + STRIDE) |
+| `/devex-review` | Developer experience audit |
+| `/setup-deploy` | Set up deployment pipeline |
+| `/setup-gbrain` | Set up gbrain memory |
+| `/setup-browser-cookies` | Configure browser cookies for QA |
+| `/context-save` | Save conversation context |
+| `/context-restore` | Restore a saved context |
+| `/careful` | Enable careful/cautious mode |
+| `/freeze` | Freeze a file from edits |
+| `/guard` | Guard a file from edits |
+| `/unfreeze` | Unfreeze a frozen file |
+| `/gstack-upgrade` | Upgrade gstack to latest |
+| `/health` | gstack health check |
